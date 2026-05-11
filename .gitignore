@@ -148,8 +148,8 @@ activemq-data/
 *.sage.py
 
 # Environments
-.env
-.envrc
+.env*
+.envrc*
 .venv
 env/
 venv/
@@ -172,8 +172,16 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
-# Pyre type checker
-.pyre/
+# SolShield AI Specific
+backend/.env
+frontend/.env.local
+firebase-service-account.json
+node_modules/
+.next/
+out/
+build/
+.vercel
+*.log
 
 # pytype static type analyzer
 .pytype/

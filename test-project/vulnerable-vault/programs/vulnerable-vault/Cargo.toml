@@ -1,0 +1,20 @@
+[package]
+name = "vulnerable-vault"
+version = "0.1.0"
+description = "Intentionally vulnerable DeFi vault for SolShield AI testing"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "vulnerable_vault"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.29.0"
+anchor-spl = "0.29.0"
