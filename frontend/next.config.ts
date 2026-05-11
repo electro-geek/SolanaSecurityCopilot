@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  turbopack: {},
+  // Turbopack has issues resolving @/ path aliases on Vercel — using webpack instead
 };
 
 export default nextConfig;
