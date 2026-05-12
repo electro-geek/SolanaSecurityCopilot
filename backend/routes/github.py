@@ -48,6 +48,7 @@ async def scan_github(
 
     try:
         import git
+        print(f"[SolShield AI] Cloning repository: {repo_url}")
         clone_dir = os.path.join(workspace, "repo")
 
         # Clone (Takes time)
@@ -57,6 +58,7 @@ async def scan_github(
             depth=1,
             multi_options=["--single-branch"]
         )
+        print(f"[SolShield AI] Clone complete. Starting analysis...")
 
         # Run scanner (Takes time)
         result = analyzer.analyze_directory(
@@ -64,6 +66,7 @@ async def scan_github(
             source="github",
             source_name=repo_name
         )
+        print(f"[SolShield AI] Analysis complete. Found {len(result.findings)} findings.")
 
         if result.rust_files_found == 0:
             raise HTTPException(
