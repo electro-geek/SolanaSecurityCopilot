@@ -14,8 +14,10 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+# lib/ and lib64/ removed to avoid ignoring frontend/lib
+# Virtual environment libs are already ignored by venv/ and env/ patterns
+# lib/
+# lib64/
 parts/
 sdist/
 var/
