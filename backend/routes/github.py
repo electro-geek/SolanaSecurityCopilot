@@ -71,16 +71,8 @@ async def scan_github(
                 detail="No Rust (.rs) files found in this repository. Is this a Solana project?"
             )
 
-        # Enrich top findings with AI (Takes time)
+        # Enrichment is now on-demand via /analyze-finding endpoint
         result_dict = result.to_dict()
-        enriched_findings = []
-        for i, finding in enumerate(result_dict["findings"]):
-            if i < 10 and ai_service.enabled:
-                enriched = ai_service.explain_vulnerability(finding)
-                enriched_findings.append(enriched)
-            else:
-                enriched_findings.append(finding)
-        result_dict["findings"] = enriched_findings
 
         # Save to database ONLY at the end (Fast)
         if user:

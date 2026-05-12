@@ -14,12 +14,15 @@ if os.path.exists(cred_path):
 else:
     print(f"WARNING: Firebase service account file not found at {cred_path}. Auth will fail.")
 
-async def get_current_user(request: Request, db: Session = Depends(get_db)):
+from database import SessionLocal # Import SessionLocal directly
+
+async def get_current_user(request: Request):
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
-        return None  # Return None if not authenticated (as per requirement: optional sign-in)
+        return None
 
     token = auth_header.split(" ")[1]
+    db = SessionLocal()
     try:
         decoded_token = auth.verify_id_token(token)
         uid = decoded_token.get("uid")
@@ -39,7 +42,13 @@ async def get_current_user(request: Request, db: Session = Depends(get_db)):
             db.add(user)
             db.commit()
             db.refresh(user)
+        
+        # Return a simple dict or detached object to avoid session issues
+        # Since we close the session here, the object might become stale.
+        # Let's return a simple object or just the ID.
         return user
     except Exception as e:
         print(f"Auth error: {e}")
-        return None # Invalid token, treat as unauthenticated
+        return None
+    finally:
+        db.close()

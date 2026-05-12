@@ -8,6 +8,7 @@ import tempfile
 import shutil
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from scanner.analyzer import VulnerabilityAnalyzer
@@ -76,16 +77,8 @@ async def scan_zip(
                 detail="No Rust (.rs) files found in the uploaded project."
             )
 
-        # Enrich findings with AI (Also takes time)
+        # Enrichment is now on-demand via /analyze-finding endpoint
         result_dict = result.to_dict()
-        enriched_findings = []
-        for i, finding in enumerate(result_dict["findings"]):
-            if i < 10 and ai_service.enabled:
-                enriched = ai_service.explain_vulnerability(finding)
-                enriched_findings.append(enriched)
-            else:
-                enriched_findings.append(finding)
-        result_dict["findings"] = enriched_findings
 
         # ONLY NOW we open a DB session to save (Fast operation)
         if user:
@@ -114,3 +107,24 @@ async def scan_zip(
         raise HTTPException(status_code=500, detail=f"Scan failed: {str(e)}")
     finally:
         shutil.rmtree(workspace, ignore_errors=True)
+
+
+class AnalyzeFindingRequest(BaseModel):
+    finding: dict
+
+@router.post("/analyze-finding")
+async def analyze_finding(
+    request: AnalyzeFindingRequest,
+    user: User = Depends(get_current_user)
+):
+    """
+    On-demand AI analysis for a specific vulnerability finding.
+    """
+    if not ai_service.enabled:
+        raise HTTPException(status_code=503, detail="AI Service is disabled. Check your API key.")
+    
+    try:
+        enriched = ai_service.explain_vulnerability(request.finding)
+        return enriched
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"AI Analysis failed: {str(e)}")

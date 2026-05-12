@@ -57,6 +57,18 @@ export default function ResultsPage() {
     URL.revokeObjectURL(url);
   };
 
+  const handleEnrichFinding = (enrichedFinding: Finding) => {
+    if (!result) return;
+    const updatedFindings = result.findings.map((f) =>
+      f.rule_id === enrichedFinding.rule_id && f.line === enrichedFinding.line ? enrichedFinding : f
+    );
+    const updatedResult = { ...result, findings: updatedFindings };
+    setResult(updatedResult);
+    setSelectedFinding(enrichedFinding);
+    // Update session storage so it persists on refresh
+    sessionStorage.setItem("scanResult", JSON.stringify(updatedResult));
+  };
+
   if (!result) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -324,7 +336,10 @@ export default function ResultsPage() {
             <div style={{ flex: 1, overflow: "hidden" }}>
               {activeTab === "detail" ? (
                 <div style={{ height: "100%", overflowY: "auto" }}>
-                  <FindingDetail finding={selectedFinding} />
+                  <FindingDetail 
+                    finding={selectedFinding} 
+                    onEnrich={handleEnrichFinding}
+                  />
                 </div>
               ) : (
                 <div style={{ padding: "16px", height: "100%" }}>

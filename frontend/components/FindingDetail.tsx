@@ -11,12 +11,13 @@ import {
   Bug,
   Code2,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
-import { Finding } from "@/lib/api";
+import { Finding, analyzeFinding } from "@/lib/api";
 
 interface Props {
   finding: Finding | null;
+  onEnrich?: (enrichedFinding: Finding) => void;
 }
 
 const severityConfig = {
@@ -26,9 +27,17 @@ const severityConfig = {
   LOW: { color: "#22c55e", bg: "rgba(34,197,94,0.08)", icon: <Info size={16} /> },
 };
 
-export default function FindingDetail({ finding }: Props) {
+export default function FindingDetail({ finding, onEnrich }: Props) {
   const [showExploit, setShowExploit] = useState(false);
   const [showRemediation, setShowRemediation] = useState(true);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Reset state when finding changes
+  useEffect(() => {
+    setIsAnalyzing(false);
+    setError(null);
+  }, [finding?.rule_id, finding?.line]);
 
   if (!finding) {
     return (
@@ -48,6 +57,21 @@ export default function FindingDetail({ finding }: Props) {
       </div>
     );
   }
+
+  const handleRunAI = async () => {
+    if (!finding) return;
+    setIsAnalyzing(true);
+    setError(null);
+    try {
+      const enriched = await analyzeFinding(finding);
+      if (onEnrich) onEnrich(enriched);
+    } catch (err: any) {
+      console.error("AI Analysis failed:", err);
+      setError(err.response?.data?.detail || "AI Analysis failed. Please try again.");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   const cfg = severityConfig[finding.severity] || severityConfig.LOW;
 
@@ -118,8 +142,64 @@ export default function FindingDetail({ finding }: Props) {
           {finding.description}
         </div>
 
-        {/* AI Explanation */}
-        {finding.ai_explanation && (
+        {/* AI Analysis Button or Content */}
+        {(!finding.ai_explanation || finding.ai_explanation.includes("Ensure your GEMINI_API_KEY") || finding.ai_explanation.includes("AI analysis is currently unavailable")) ? (
+          <div
+            style={{
+              padding: "32px 16px",
+              borderRadius: "10px",
+              background: "rgba(59, 130, 246, 0.04)",
+              border: "1px dashed rgba(59, 130, 246, 0.2)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "16px",
+              marginBottom: "24px",
+            }}
+          >
+            <div style={{ textAlign: "center" }}>
+              <h3 style={{ fontSize: "14px", fontWeight: 700, color: "#63b3ff", marginBottom: "4px" }}>
+                Deep Security Analysis
+              </h3>
+              <p style={{ fontSize: "12px", color: "#4a6280" }}>
+                Use SolShield AI to generate an exploit scenario and remediation steps.
+              </p>
+            </div>
+            
+            <button
+              onClick={handleRunAI}
+              disabled={isAnalyzing}
+              className={isAnalyzing ? "" : "btn-primary"}
+              style={{
+                padding: "10px 24px",
+                fontSize: "13px",
+                borderRadius: "8px",
+                cursor: isAnalyzing ? "wait" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                background: isAnalyzing ? "rgba(255,255,255,0.05)" : undefined,
+                border: isAnalyzing ? "1px solid rgba(255,255,255,0.1)" : undefined,
+                color: isAnalyzing ? "#4a6280" : undefined,
+              }}
+            >
+              {isAnalyzing ? (
+                <>
+                  <div className="spinner-small" />
+                  Analyzing with Gemini...
+                </>
+              ) : (
+                <>
+                  <Lightbulb size={16} />
+                  Run AI Analysis
+                </>
+              )}
+            </button>
+            {error && (
+              <p style={{ fontSize: "11px", color: "#ef4444", marginTop: "8px" }}>{error}</p>
+            )}
+          </div>
+        ) : (
           <div
             style={{
               padding: "16px",
