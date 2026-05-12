@@ -11,10 +11,32 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="SolShield AI Backend")
 
+def _parse_allowed_origins(value: str | None) -> list[str]:
+    if not value:
+        return []
+    return [o.strip().rstrip("/") for o in value.split(",") if o.strip()]
+
+
 # CORS configuration
+#
+# IMPORTANT:
+# - Browsers block HTTPS pages calling plain HTTP (mixed content) before CORS even runs.
+# - For CORS itself, prefer an explicit allowlist in production.
+allowed_origins = _parse_allowed_origins(os.getenv("ALLOWED_ORIGINS"))
+if not allowed_origins:
+    # Safe defaults for local dev + the two known production frontends.
+    allowed_origins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://solana-security-copilot.vercel.app",
+        "https://solshield.mritunjay.live",
+    ]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=".*",
+    allow_origins=allowed_origins,
+    # Allow Vercel preview deployments if you ever use them.
+    allow_origin_regex=r"^https:\/\/.*\.vercel\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
