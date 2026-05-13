@@ -1,774 +1,107 @@
-# AI Smart Contract Security Copilot — Complete Project Specification
+<p align="center">
+  <img src="./logo.png" alt="SolShield AI Logo" width="200"/>
+</p>
 
-Use this entire document as the master prompt/context for Antigravity.
+<h1 align="center">SolShield AI</h1>
+<p align="center">
+  <strong>AI-Powered Solana Smart Contract Security Copilot</strong>
+</p>
 
----
-
-# Project Name
-
-## SolShield AI
-
-AI-Powered Solana Smart Contract Security Copilot
-
----
-
-# Project Overview
-
-SolShield AI is an AI-powered smart contract security auditing platform focused on the Solana ecosystem.
-
-The platform allows developers to upload Solana smart contract repositories or Anchor projects and automatically scans them for security vulnerabilities using static analysis and AI-based reasoning.
-
-The system detects common Solana smart contract vulnerabilities, explains the security risk in plain English, suggests fixes, and provides code-level insights through an interactive dashboard.
-
-The goal is to create a developer-first security assistant that simplifies smart contract auditing and reduces vulnerabilities before deployment.
+<p align="center">
+  <img src="https://img.shields.io/badge/Solana-Security-blue?style=for-the-badge&logo=solana" alt="Solana Security" />
+  <img src="https://img.shields.io/badge/AI-Powered-green?style=for-the-badge&logo=openai" alt="AI Powered" />
+  <img src="https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js" alt="Next.js" />
+  <img src="https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi" alt="FastAPI" />
+</p>
 
 ---
 
-# Core Problem
+## 🛡️ Overview
 
-Solana smart contract development is complex and security-critical.
+**SolShield AI** is a comprehensive, AI-driven security auditing platform specifically designed for the Solana ecosystem. It empowers developers to detect, understand, and remediate vulnerabilities in Anchor and Rust smart contracts *before* they hit the mainnet.
 
-Many developers:
+By combining deep AST (Abstract Syntax Tree) analysis with state-of-the-art AI models, SolShield AI provides more than just a list of bugs—it offers actionable insights, exploit scenarios, and secure remediation steps in plain English.
 
-* do not fully understand Solana security patterns
-* miss account validation checks
-* misuse Program Derived Addresses (PDAs)
-* perform unsafe Cross Program Invocations (CPIs)
-* fail to validate signers properly
+![SolShield AI Landing Page](./landing.png)
 
-Traditional auditing:
+## ✨ Key Features
 
-* is expensive
-* requires expert auditors
-* takes time
-* is inaccessible for hackathon builders and indie developers
+-   **🔍 Multi-Source Scanning**: Upload local Anchor/Rust projects or scan entire GitHub repositories directly.
+-   **🤖 AI-Powered Explanations**: Every vulnerability is accompanied by an AI-generated breakdown of why it's dangerous and how to fix it.
+-   **💻 Interactive Code Viewer**: A Monaco-based editor that highlights vulnerable lines in real-time, providing context exactly where it's needed.
+-   **📊 Security Scoring**: Get a high-level overview of your project's health with automated severity scoring.
+-   **🚀 Real-Time Visualization**: Track the progress of your security scans with a dynamic, interactive dashboard.
+-   **🛠️ Solana-Specific Detection**:
+    -   Missing Signer Validations
+    -   Unsafe Account Handling
+    -   PDA (Program Derived Address) Misuse
+    -   Insecure CPI (Cross-Program Invocation) Patterns
+    -   Unsafe Rust Operations
 
-SolShield AI solves this problem by combining:
+## 🚀 Why SolShield AI?
 
-* static analysis
-* AST parsing
-* AI vulnerability explanations
-* automated remediation suggestions
+In the fast-moving Solana ecosystem, even a small validation error can lead to millions in lost funds. Traditional professional audits are often:
+-   **Expensive**: Prohibitive for indie developers and hackathon teams.
+-   **Slow**: Taking weeks or months to complete.
+-   **Opaque**: Providing reports that are hard for junior developers to interpret.
 
-into one easy-to-use platform.
+SolShield AI acts as your **24/7 Security Copilot**, bridging the gap between development speed and blockchain security.
 
----
+## 🛠️ Tech Stack
 
-# Main Features
+-   **Frontend**: Next.js 15, TailwindCSS, Monaco Editor, Framer Motion.
+-   **Backend**: FastAPI (Python), Tree-sitter (for Rust AST parsing), Gemini AI / OpenAI APIs.
+-   **Database/Auth**: PostgreSQL, Firebase Authentication.
+-   **DevOps**: Docker, Docker Compose.
 
-## 1. Upload & Scan Solana Projects
+## 🏁 Getting Started
 
-Users can:
+### Prerequisites
 
-* upload ZIP files
-* paste GitHub repository URLs
-* upload Anchor projects
+-   Docker and Docker Compose
+-   A Gemini API Key (or supported AI provider)
+-   Firebase Service Account credentials
 
-The backend automatically:
+### Installation & Setup
 
-* extracts files
-* identifies Rust smart contracts
-* scans source code
-* generates findings
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/your-username/SolanaSecurityCopilot.git
+    cd SolanaSecurityCopilot
+    ```
 
----
+2.  **Configure Environment Variables**:
+    Create a `.env` file in the root directory (referencing `.env.example`):
+    ```env
+    GEMINI_API_KEY=your_api_key_here
+    DATABASE_URL=postgresql://user:password@db:5432/solshield
+    NEXT_PUBLIC_API_URL=http://localhost:8000
+    ```
 
-# 2. Static Security Scanner
+3.  **Launch with Docker**:
+    ```bash
+    docker-compose up --build
+    ```
 
-The scanner performs AST-based analysis on Rust smart contract code.
+4.  **Access the application**:
+    -   Frontend: `http://localhost:3000`
+    -   Backend API: `http://localhost:8000/docs`
 
-The system detects vulnerabilities such as:
+## 🔮 Future Scope
 
-* missing signer validation
-* unchecked account ownership
-* unsafe unwrap()
-* insecure CPI usage
-* PDA misuse
-* arithmetic overflow risks
-* missing authority checks
+-   **[ ]** Automated exploit simulation and fuzzing.
+-   **[ ]** CI/CD integration for GitHub Actions.
+-   **[ ]** VSCode Extension for real-time IDE security feedback.
+-   **[ ]** On-chain audit certificates and trust scores.
 
-Each vulnerability includes:
+## 🤝 Contributing
 
-* title
-* severity
-* affected file
-* vulnerable line number
-* explanation
+We welcome contributions from the community! Whether you're a security researcher or a frontend wizard, feel free to open an issue or submit a pull request.
 
----
+## 📜 License
 
-# 3. AI Vulnerability Explainer
-
-After the static scanner identifies issues, AI generates:
-
-* human-readable explanations
-* exploit scenarios
-* attack vectors
-* remediation suggestions
-* secure code recommendations
-
-The AI behaves like a smart contract security auditor.
-
----
-
-# 4. Monaco Code Viewer
-
-Frontend includes:
-
-* Monaco editor
-* syntax highlighting
-* vulnerable line markers
-* severity indicators
-* inline security explanations
-
-This creates an interactive developer experience.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-# 5. AI Security Chat Assistant
-
-Users can ask questions like:
-
-* "Why is this vulnerability dangerous?"
-* "How do I fix signer validation?"
-* "Explain PDA security"
-
-The AI assistant responds with Solana-specific security guidance.
-
----
-
-# 6. GitHub Repository Scanner
-
-Users can paste:
-
-* public GitHub repository URLs
-
-Backend automatically:
-
-* clones repository
-* scans project
-* generates findings
-
----
-
-# 7. Security Reports
-
-Generate:
-
-* JSON reports
-* downloadable audit summaries
-
-Each report includes:
-
-* findings
-* severity
-* remediation suggestions
-* timestamps
-
----
-
-# Technical Architecture
-
-```text
-Frontend (Next.js)
-    |
-    | REST API
-    |
-Backend (FastAPI)
-    |
-    ├── Scanner Engine
-    ├── AST Parser
-    ├── AI Explainer
-    ├── GitHub Cloner
-    |
-Database (PostgreSQL)
-```
-
----
-
-# Tech Stack
-
-## Frontend
-
-* Next.js
-* TypeScript
-* TailwindCSS
-* shadcn/ui
-* Monaco Editor
-* Framer Motion
-* Axios
-
----
-
-## Backend
-
-* FastAPI
-* Python
-* Tree-sitter
-* GitPython
-* OpenAI/Gemini APIs
-
----
-
-## Scanner Engine
-
-* Tree-sitter Rust parser
-* Custom vulnerability detection rules
-* AST traversal
-
----
-
-# Frontend Requirements
-
-# General UI Style
-
-Create a:
-
-* modern cybersecurity dashboard
-* dark theme
-* professional developer tooling interface
-
-Design inspiration:
-
-* Linear
-* Cursor
-* GitHub Security
-* Vercel
-* Datadog
-
-Use:
-
-* smooth animations
-* responsive layouts
-* glowing security indicators
-* minimal but premium UI
-
----
-
-# Required Pages
-
-## 1. Landing Page
-
-Sections:
-
-* Hero section
-* Features
-* Security workflow
-* Demo screenshots
-* CTA buttons
-
-Hero headline:
-"AI-Powered Solana Smart Contract Security Auditor"
-
----
-
-## 2. Dashboard Page
-
-Features:
-
-* upload project
-* recent scans
-* scan status
-* findings summary
-
----
-
-## 3. Scan Results Page
-
-Must include:
-
-* findings sidebar
-* Monaco code editor
-* vulnerability markers
-* severity badges
-* AI explanations
-
----
-
-## 4. AI Security Chat Page
-
-Chat interface similar to:
-
-* ChatGPT
-* Cursor AI
-
-Features:
-
-* streaming responses
-* markdown rendering
-* code snippets
-
----
-
-# Backend Requirements
-
-# Backend Structure
-
-```text
-backend/
-│
-├── main.py
-├── routes/
-├── scanner/
-├── services/
-├── utils/
-├── models/
-└── uploads/
-```
-
----
-
-# API Requirements
-
-## POST /scan
-
-Accepts:
-
-* ZIP file upload
-
-Flow:
-
-1. save upload
-2. extract project
-3. scan Rust files
-4. run vulnerability rules
-5. AI explanation generation
-6. return findings JSON
-
----
-
-## POST /scan-github
-
-Accepts:
-
-* GitHub repository URL
-
-Flow:
-
-1. clone repository
-2. scan project
-3. generate findings
-4. return results
-
----
-
-## POST /ai-chat
-
-Accepts:
-
-* user question
-* code context
-
-Returns:
-
-* AI-generated security explanation
-
----
-
-# Scanner Engine Requirements
-
-# Directory Structure
-
-```text
-scanner/
-│
-├── parser.py
-├── analyzer.py
-├── findings.py
-└── rules/
-```
-
----
-
-# Parsing Logic
-
-Use:
-
-* Tree-sitter Rust parser
-
-Parser should:
-
-* parse Rust source code
-* generate AST
-* traverse syntax nodes
-* identify security patterns
-
----
-
-# Vulnerability Rules
-
-Implement the following initial rules:
-
----
-
-## Rule 1 — Missing Signer Validation
-
-Detect cases where:
-
-* sensitive operations occur
-* but account.is_signer is not checked
-
-Severity:
-HIGH
-
----
-
-## Rule 2 — Unsafe unwrap()
-
-Detect:
-
-* unwrap()
-* expect()
-
-Severity:
-MEDIUM
-
-Reason:
-Can cause panic and denial of service.
-
----
-
-## Rule 3 — Missing Account Ownership Validation
-
-Detect:
-
-* account usage without owner verification
-
-Severity:
-HIGH
-
----
-
-## Rule 4 — Insecure Cross Program Invocation
-
-Detect:
-
-* invoke()
-* invoke_signed()
-
-without proper validation.
-
-Severity:
-HIGH
-
----
-
-## Rule 5 — PDA Validation Issues
-
-Detect:
-
-* missing seeds validation
-* incorrect PDA derivation patterns
-
-Severity:
-HIGH
-
----
-
-# Findings JSON Format
-
-```json
-{
-  "title": "Missing Signer Validation",
-  "severity": "HIGH",
-  "file": "lib.rs",
-  "line": 42,
-  "description": "Sensitive operation performed without signer validation."
-}
-```
-
----
-
-# AI Logic
-
-The AI assistant should behave like:
-
-* a professional Solana smart contract auditor
-* security researcher
-* blockchain engineer
-
----
-
-# AI Prompting Logic
-
-When vulnerabilities are found, AI should explain:
-
-1. what the issue is
-2. why it is dangerous
-3. possible exploit scenario
-4. severity level
-5. how to fix it
-6. secure coding practices
-
-Tone:
-
-* professional
-* technical
-* educational
-
----
-
-# Monaco Editor Requirements
-
-The Monaco editor should:
-
-* display uploaded Rust files
-* highlight vulnerable lines
-* support syntax highlighting
-* show inline error decorations
-* display severity colors
-
----
-
-# UI Components Required
-
-Use shadcn/ui components.
-
-Required:
-
-* cards
-* dialogs
-* badges
-* sidebar
-* tabs
-* scroll areas
-* tooltips
-* accordions
-
----
-
-# Animations
-
-Use Framer Motion for:
-
-* page transitions
-* dashboard loading
-* vulnerability cards
-* AI streaming effects
-
-Animations should feel:
-
-* modern
-* smooth
-* premium
-
----
-
-# Authentication
-
-For hackathon MVP:
-DO NOT implement:
-
-* OAuth
-* complex auth systems
-* billing
-
-Simple anonymous usage is enough.
-
----
-
-# File Upload Requirements
-
-Frontend must support:
-
-* drag-and-drop upload
-* ZIP validation
-* upload progress indicators
-
----
-
-# Error Handling
-
-Handle:
-
-* invalid ZIPs
-* missing Rust files
-* failed GitHub clones
-* parser crashes
-* AI API failures
-
-Show clean user-friendly errors.
-
----
-
-# Expected User Flow
-
-## Flow 1 — Upload Scan
-
-1. User uploads Anchor project ZIP
-2. Backend extracts files
-3. Scanner analyzes Rust contracts
-4. Vulnerabilities detected
-5. AI explanations generated
-6. Frontend displays findings
-
----
-
-## Flow 2 — GitHub Scan
-
-1. User pastes GitHub repo URL
-2. Backend clones repo
-3. Scanner runs
-4. Results displayed in dashboard
-
----
-
-# Important Constraints
-
-DO NOT:
-
-* overcomplicate architecture
-* add unnecessary blockchain transactions
-* implement DAO features
-* build tokenomics
-* add payment systems
-
-Focus only on:
-
-* smart contract security
-* developer tooling
-* AI-assisted auditing
-
----
-
-# Priority Order
-
-## MUST HAVE
-
-* upload scanning
-* vulnerability detection
-* AI explanations
-* Monaco editor
-* clean dashboard UI
-
----
-
-## NICE TO HAVE
-
-* GitHub scanning
-* AI chat
-* PDF reports
-
----
-
-# Development Roadmap
-
-# STEP 5 — Implement Rust Parser
-
-Tasks:
-
-* integrate Tree-sitter
-* parse Rust files
-* generate AST
-* extract functions and calls
-
----
-
-# STEP 6 — Implement Vulnerability Rules
-
-Tasks:
-
-* create rule engine
-* add signer validation rule
-* add unsafe unwrap rule
-* add ownership validation rule
-* generate findings JSON
-
----
-
-# STEP 7 — Build Scan API
-
-Tasks:
-
-* create /scan endpoint
-* support ZIP uploads
-* extract files
-* trigger scanner
-* return results
-
----
-
-# STEP 8 — Build GitHub Scanner
-
-Tasks:
-
-* create /scan-github endpoint
-* clone repository
-* scan automatically
-
----
-
-# STEP 9 — Integrate AI Explanations
-
-Tasks:
-
-* connect Gemini/OpenAI
-* generate vulnerability explanations
-* generate remediation suggestions
-
----
-
-# STEP 10 — Build Frontend Dashboard
-
-Tasks:
-
-* upload page
-* findings cards
-* scan history
-* sidebar navigation
-
----
-
-# STEP 11 — Add Monaco Code Editor
-
-Tasks:
-
-* render Rust files
-* highlight vulnerable lines
-* show inline markers
-
----
-
-# STEP 12 — Build AI Chat Assistant
-
-Tasks:
-
-* create chat UI
-* integrate streaming responses
-* add code-aware prompts
-
----
-
-# STEP 13 — Add Report Export
-
-Tasks:
-
-* export findings JSON
-* downloadable reports
-
----
-
-# STEP 14 — UI Polish
-
-Tasks:
-
-* add animations
-* improve responsiveness
-* optimize loading states
-* improve developer UX
-
----
-
-# Final Goal
-
-Build a polished AI-powered Solana smart contract auditing platform that:
-
-* feels production-ready
-* demonstrates deep technical capability
-* solves a real Web3 security problem
-* impresses hackathon judges through:
-
-  * technical depth
-  * polished UI
-  * strong live demo
-  * real vulnerability detection
+<p align="center"> Built with ❤️ for the Solana Ecosystem </p>
