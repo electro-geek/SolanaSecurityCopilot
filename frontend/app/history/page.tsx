@@ -16,7 +16,7 @@ import {
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
-import axios from "axios";
+import { api } from "@/lib/api";
 
 interface HistoryItem {
   id: number;
@@ -53,10 +53,7 @@ export default function HistoryPage() {
 
   const fetchHistory = async () => {
     try {
-      const token = localStorage.getItem("solshield_token");
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/history/`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get("/history/");
       setHistory(res.data);
     } catch (err) {
       console.error("Failed to fetch history", err);
@@ -70,10 +67,7 @@ export default function HistoryPage() {
     // We can either fetch them again or redirect to results page if we modify results page to fetch by ID.
     // For this hackathon version, we'll fetch detail and store in sessionStorage to reuse existing results page.
     setLoading(true);
-    const token = localStorage.getItem("solshield_token");
-    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/history/${item.scan_id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).then(res => {
+    api.get(`/history/${item.scan_id}`).then(res => {
       sessionStorage.setItem("scanResult", JSON.stringify(res.data));
       router.push("/results");
     }).catch(err => {
