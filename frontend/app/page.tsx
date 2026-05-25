@@ -1,598 +1,1209 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 import Link from "next/link";
 import {
   Shield,
   Zap,
+  ArrowUpRight,
   Code2,
   GitBranch,
   MessageSquare,
-  FileDown,
-  AlertTriangle,
-  CheckCircle,
-  ArrowRight,
-  Sparkles,
-  Lock,
-  Eye,
   Terminal,
+  Eye,
+  Lock,
 } from "lucide-react";
 
-const features = [
-  {
-    icon: <Shield size={24} />,
-    title: "Static Security Scanner",
-    desc: "AST-based analysis detects signer validation gaps, unsafe CPIs, PDA misuse, and 7+ vulnerability classes.",
-    color: "#3b82f6",
-  },
-  {
-    icon: <Sparkles size={24} />,
-    title: "AI Vulnerability Explainer",
-    desc: "Gemini AI acts as your personal auditor — explaining risks, exploit paths, and providing secure code fixes.",
-    color: "#8b5cf6",
-  },
-  {
-    icon: <Code2 size={24} />,
-    title: "Monaco Code Viewer",
-    desc: "Interactive code editor with syntax highlighting, vulnerable line markers, and inline severity indicators.",
-    color: "#06b6d4",
-  },
-  {
-    icon: <GitBranch size={24} />,
-    title: "GitHub Repository Scanner",
-    desc: "Paste a public GitHub URL and SolShield instantly clones, scans, and reports vulnerabilities.",
-    color: "#10b981",
-  },
-  {
-    icon: <MessageSquare size={24} />,
-    title: "AI Security Chat",
-    desc: 'Ask "Why is this dangerous?" or "How do I fix PDA validation?" — streaming AI answers your questions.',
-    color: "#f59e0b",
-  },
-  {
-    icon: <FileDown size={24} />,
-    title: "Report Export",
-    desc: "Download detailed JSON audit reports with all findings, severity scores, and remediation steps.",
-    color: "#ec4899",
-  },
+gsap.registerPlugin(ScrollTrigger, useGSAP);
+
+const VULN_RULES = [
+  "SOL-001 · Missing Signer Validation",
+  "SOL-002 · Unsafe unwrap() Usage",
+  "SOL-003 · Account Ownership Missing",
+  "SOL-004 · Insecure CPI Invocation",
+  "SOL-005 · PDA Validation Issues",
+  "SOL-006 · Arithmetic Overflow Risk",
+  "SOL-007 · Missing Authority Check",
 ];
 
-const vulnerabilities = [
-  { id: "SOL-001", name: "Missing Signer Validation", severity: "HIGH" },
-  { id: "SOL-002", name: "Unsafe unwrap() Usage", severity: "MEDIUM" },
-  { id: "SOL-003", name: "Account Ownership Missing", severity: "HIGH" },
-  { id: "SOL-004", name: "Insecure CPI Invocation", severity: "HIGH" },
-  { id: "SOL-005", name: "PDA Validation Issues", severity: "HIGH" },
-  { id: "SOL-006", name: "Arithmetic Overflow Risk", severity: "MEDIUM" },
-  { id: "SOL-007", name: "Missing Authority Check", severity: "HIGH" },
-];
-
-const steps = [
-  {
-    step: "01",
-    title: "Upload or Link",
-    desc: "Upload a ZIP of your Anchor project or paste a GitHub repository URL.",
-    icon: <Code2 size={20} />,
-  },
-  {
-    step: "02",
-    title: "Automated Scan",
-    desc: "SolShield parses your Rust files, runs 7 vulnerability rules, and detects issues instantly.",
-    icon: <Eye size={20} />,
-  },
-  {
-    step: "03",
-    title: "AI Explanations",
-    desc: "Every finding is enriched with AI-generated explanations, exploit scenarios, and code fixes.",
-    icon: <Sparkles size={20} />,
-  },
-  {
-    step: "04",
-    title: "Fix & Deploy Safely",
-    desc: "Apply the suggested fixes, re-scan to confirm, and deploy with confidence.",
-    icon: <Lock size={20} />,
-  },
-];
-
-const severityColors: Record<string, string> = {
-  HIGH: "#f97316",
-  MEDIUM: "#eab308",
-  LOW: "#22c55e",
-  CRITICAL: "#ef4444",
-};
+const SCRUB_SENTENCE =
+  "Every Rust file parsed. Every exploit scenario modeled. Every fix explained in plain language before a single user's funds are lost on-chain.";
 
 export default function LandingPage() {
+  const mainRef     = useRef<HTMLElement>(null);
+  const bentoRef    = useRef<HTMLDivElement>(null);
+  const scrubRef    = useRef<HTMLElement>(null);
+  const statsRef    = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      /* ── Hero entrance ── */
+      const heroTl = gsap.timeline({ defaults: { ease: "power4.out" } });
+      heroTl
+        .from(".hero-eyebrow", { y: 24, opacity: 0, duration: 0.7 })
+        .from(".hero-title",   { y: 56, opacity: 0, duration: 1.1 }, "-=0.45")
+        .from(".hero-sub",     { y: 36, opacity: 0, duration: 0.85 }, "-=0.65")
+        .from(".hero-ctas",    { y: 24, opacity: 0, duration: 0.7 }, "-=0.5");
+
+      /* ── Bento cards ── */
+      gsap.from(".bento-item", {
+        y: 64,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.11,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: bentoRef.current,
+          start: "top 78%",
+        },
+      });
+
+      /* ── Scrubbing text reveal ── */
+      gsap.fromTo(
+        ".scrub-word",
+        { opacity: 0.06 },
+        {
+          opacity: 1,
+          stagger: 0.035,
+          ease: "none",
+          scrollTrigger: {
+            trigger: scrubRef.current,
+            start: "top 65%",
+            end: "bottom 35%",
+            scrub: 1.8,
+          },
+        }
+      );
+
+      /* ── Feature rows fade-up ── */
+      gsap.from(".scrub-feature", {
+        y: 32,
+        opacity: 0,
+        duration: 0.65,
+        stagger: 0.14,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".scrub-feature-list",
+          start: "top 80%",
+        },
+      });
+
+      /* ── Image scale on scroll ── */
+      gsap.fromTo(
+        ".scale-image",
+        { scale: 0.86, opacity: 0.35 },
+        {
+          scale: 1,
+          opacity: 1,
+          duration: 1.1,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: ".scale-image",
+            start: "top 82%",
+          },
+        }
+      );
+
+      /* ── Stats count-up ── */
+      gsap.from(".stat-block", {
+        y: 40,
+        opacity: 0,
+        duration: 0.7,
+        stagger: 0.12,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: statsRef.current,
+          start: "top 82%",
+        },
+      });
+
+      /* ── CTA fade up ── */
+      gsap.from(".cta-content", {
+        y: 48,
+        opacity: 0,
+        duration: 0.9,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".cta-content",
+          start: "top 80%",
+        },
+      });
+    },
+    { scope: mainRef }
+  );
+
   return (
-    <div style={{ position: "relative", zIndex: 1 }}>
-      {/* NAV */}
-      <motion.nav
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+    <main
+      ref={mainRef}
+      className="landing-root"
+      style={{
+        overflowX: "hidden",
+        width: "100%",
+        maxWidth: "100%",
+        background: "var(--bg-primary)",
+        color: "var(--text-primary)",
+      }}
+    >
+      {/* ─────────────────── NAV ─────────────────── */}
+      <nav
         style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 100,
-          background: "rgba(8, 12, 20, 0.8)",
-          backdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(99, 179, 255, 0.08)",
-          padding: "16px 32px",
+          position: "fixed",
+          top: "18px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 1000,
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
+          gap: "28px",
+          padding: "10px 20px",
+          borderRadius: "100px",
+          background: "rgba(8, 12, 22, 0.78)",
+          backdropFilter: "blur(28px)",
+          WebkitBackdropFilter: "blur(28px)",
+          border: "1px solid rgba(99, 179, 255, 0.11)",
+          boxShadow: "0 8px 40px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.04) inset",
+          whiteSpace: "nowrap",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        {/* Logo */}
+        <div style={{ display: "flex", alignItems: "center", gap: "9px" }}>
           <div
             style={{
-              width: 36,
-              height: 36,
-              borderRadius: "10px",
+              width: 28,
+              height: 28,
+              borderRadius: "8px",
               background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              flexShrink: 0,
             }}
           >
-            <Shield size={20} color="white" />
+            <Shield size={14} color="white" />
           </div>
           <span
             style={{
-              fontSize: "18px",
               fontWeight: 800,
+              fontSize: "14px",
+              letterSpacing: "-0.03em",
               background: "linear-gradient(135deg, #63b3ff, #a78bfa)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
             }}
           >
-            SolShield AI
+            SolShield
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <Link href="/dashboard" className="btn-secondary" style={{ padding: "8px 18px", fontSize: "13px" }}>
-            Dashboard
-          </Link>
-          <Link href="/dashboard" className="btn-primary" style={{ padding: "8px 18px", fontSize: "13px" }}>
-            Start Scanning <ArrowRight size={14} />
-          </Link>
-        </div>
-      </motion.nav>
 
-      {/* HERO */}
-      <section
-        style={{
-          padding: "100px 32px 80px",
-          maxWidth: "1100px",
-          margin: "0 auto",
-          textAlign: "center",
-        }}
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.1 }}
-        >
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "6px 16px",
-              borderRadius: "20px",
-              background: "rgba(59, 130, 246, 0.1)",
-              border: "1px solid rgba(59, 130, 246, 0.25)",
-              marginBottom: "32px",
-              fontSize: "13px",
-              color: "#63b3ff",
-              fontWeight: 600,
-            }}
-          >
-            <Zap size={14} />
-            AI-Powered Security Auditing for Solana
-          </div>
-
-          <h1
-            style={{
-              fontSize: "clamp(40px, 7vw, 80px)",
-              fontWeight: 900,
-              lineHeight: 1.05,
-              marginBottom: "24px",
-              letterSpacing: "-0.04em",
-            }}
-          >
-            <span style={{ color: "#e8f4fd" }}>Secure Your</span>
-            <br />
-            <span
-              style={{
-                background: "linear-gradient(135deg, #63b3ff 0%, #a78bfa 50%, #34d399 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
-              Solana Contracts
-            </span>
-            <br />
-            <span style={{ color: "#e8f4fd" }}>Before Exploit Day</span>
-          </h1>
-
-          <p
-            style={{
-              fontSize: "18px",
-              color: "#8aa3c8",
-              maxWidth: "600px",
-              margin: "0 auto 40px",
-              lineHeight: 1.7,
-            }}
-          >
-            SolShield AI automatically scans your Anchor projects for critical vulnerabilities,
-            explains every finding with AI, and provides secure code fixes — in seconds.
-          </p>
-
-          <div style={{ display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/dashboard" className="btn-primary" style={{ fontSize: "15px", padding: "14px 32px" }}>
-              <Shield size={18} />
-              Start Free Audit
-            </Link>
-            <Link href="/chat" className="btn-secondary" style={{ fontSize: "15px", padding: "14px 32px" }}>
-              <MessageSquare size={18} />
-              Ask AI Assistant
-            </Link>
-          </div>
-        </motion.div>
-
-        {/* Stats bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4 }}
+        {/* Links */}
+        <div
           style={{
             display: "flex",
-            justifyContent: "center",
-            gap: "48px",
-            marginTop: "64px",
-            flexWrap: "wrap",
+            gap: "22px",
+            fontSize: "12.5px",
+            fontWeight: 500,
+            color: "rgba(138, 163, 200, 0.8)",
           }}
         >
           {[
-            { val: "7+", label: "Vulnerability Rules" },
-            { val: "<2s", label: "Scan Speed" },
-            { val: "AI", label: "Explanations" },
-            { val: "Free", label: "No Auth Required" },
-          ].map((stat) => (
-            <div key={stat.label} style={{ textAlign: "center" }}>
-              <div
-                style={{
-                  fontSize: "32px",
-                  fontWeight: 800,
-                  background: "linear-gradient(135deg, #63b3ff, #a78bfa)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}
-              >
-                {stat.val}
-              </div>
-              <div style={{ fontSize: "13px", color: "#4a6280", marginTop: "4px" }}>{stat.label}</div>
-            </div>
+            { label: "Features", href: "#features" },
+            { label: "How It Works", href: "#how" },
+            { label: "Dashboard", href: "/dashboard" },
+          ].map(({ label, href }) => (
+            <Link key={label} href={href} className="nav-link" style={{ color: "inherit", textDecoration: "none" }}>
+              {label}
+            </Link>
           ))}
-        </motion.div>
-      </section>
+        </div>
 
-      {/* FEATURES */}
-      <section style={{ padding: "80px 32px", maxWidth: "1200px", margin: "0 auto" }}>
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          style={{ textAlign: "center", marginBottom: "60px" }}
-        >
-          <h2
-            style={{ fontSize: "38px", fontWeight: 800, marginBottom: "16px", letterSpacing: "-0.03em" }}
-          >
-            Everything You Need for{" "}
-            <span
-              style={{
-                background: "linear-gradient(135deg, #63b3ff, #a78bfa)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
-              Smart Contract Security
-            </span>
-          </h2>
-          <p style={{ fontSize: "16px", color: "#8aa3c8", maxWidth: "500px", margin: "0 auto" }}>
-            A complete developer-first security platform for the Solana ecosystem.
-          </p>
-        </motion.div>
-
-        <div
+        {/* CTA */}
+        <Link
+          href="/dashboard"
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
-            gap: "20px",
+            padding: "7px 18px",
+            borderRadius: "100px",
+            background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+            color: "white",
+            fontSize: "12px",
+            fontWeight: 700,
+            textDecoration: "none",
+            letterSpacing: "0.01em",
+            boxShadow: "0 0 24px rgba(59,130,246,0.3)",
           }}
         >
-          {features.map((feat, i) => (
-            <motion.div
-              key={feat.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="glass-card"
-              style={{ padding: "28px" }}
-              whileHover={{ y: -4 }}
+          Start Audit
+        </Link>
+      </nav>
+
+      {/* ─────────────────── HERO ─────────────────── */}
+      <section
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          padding: "120px 32px 80px",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Full-bleed background image */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage:
+              "url(https://picsum.photos/seed/solana-blockchain-network/1920/1080)",
+            backgroundSize: "cover",
+            backgroundPosition: "center 40%",
+            filter: "grayscale(100%) brightness(0.12) contrast(1.3)",
+            zIndex: 0,
+          }}
+        />
+        {/* Radial glow overlay */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "radial-gradient(ellipse 80% 55% at 50% 45%, rgba(59,130,246,0.1) 0%, rgba(139,92,246,0.04) 45%, transparent 75%)",
+            zIndex: 1,
+          }}
+        />
+        {/* Bottom fade */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: "220px",
+            background: "linear-gradient(to bottom, transparent, var(--bg-primary))",
+            zIndex: 2,
+          }}
+        />
+
+        {/* Content */}
+        <div style={{ position: "relative", zIndex: 3, maxWidth: "1240px", width: "100%" }}>
+          {/* Eyebrow */}
+          <div
+            className="hero-eyebrow"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "7px",
+              padding: "5px 14px",
+              borderRadius: "100px",
+              background: "rgba(59,130,246,0.09)",
+              border: "1px solid rgba(59,130,246,0.22)",
+              fontSize: "11.5px",
+              fontWeight: 700,
+              color: "#4f9eff",
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+              marginBottom: "36px",
+            }}
+          >
+            <Zap size={11} />
+            AI-Powered Solana Security Auditing
+          </div>
+
+          {/* H1 — max 3 lines, inline image in heading */}
+          <h1
+            className="hero-title"
+            style={{
+              fontSize: "clamp(3rem, 6.5vw, 6.2rem)",
+              fontWeight: 900,
+              lineHeight: 1.02,
+              letterSpacing: "-0.055em",
+              marginBottom: "28px",
+              maxWidth: "100%",
+            }}
+          >
+            <span style={{ color: "#e8f4fd" }}>Audit Solana </span>
+            {/* Inline pill image */}
+            <span
+              style={{
+                display: "inline-block",
+                width: "clamp(56px, 6vw, 88px)",
+                height: "clamp(32px, 3.5vw, 52px)",
+                borderRadius: "100px",
+                backgroundImage:
+                  "url(https://picsum.photos/seed/circuit-dark/200/100)",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                filter: "grayscale(60%) brightness(0.75) contrast(1.2)",
+                verticalAlign: "middle",
+                margin: "0 6px -4px",
+                border: "1px solid rgba(99,179,255,0.18)",
+              }}
+            />
+            <span style={{ color: "#e8f4fd" }}>Contracts</span>
+            <br />
+            <span
+              style={{
+                background:
+                  "linear-gradient(135deg, #4f9eff 0%, #9d7cff 52%, #2dd4bf 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
             >
-              <div
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: "12px",
-                  background: `${feat.color}1a`,
-                  border: `1px solid ${feat.color}30`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: feat.color,
-                  marginBottom: "16px",
-                }}
-              >
-                {feat.icon}
-              </div>
-              <h3 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "8px" }}>{feat.title}</h3>
-              <p style={{ fontSize: "14px", color: "#8aa3c8", lineHeight: 1.6 }}>{feat.desc}</p>
-            </motion.div>
-          ))}
+              Before Exploit Day
+            </span>
+          </h1>
+
+          {/* Sub */}
+          <p
+            className="hero-sub"
+            style={{
+              fontSize: "clamp(15px, 1.7vw, 19px)",
+              color: "#6b8cad",
+              maxWidth: "520px",
+              margin: "0 auto 44px",
+              lineHeight: 1.7,
+              letterSpacing: "-0.01em",
+            }}
+          >
+            SolShield AI scans Anchor and Rust smart contracts for 7 critical
+            vulnerability classes and explains every finding — exploit path,
+            root cause, and secure fix — in plain English.
+          </p>
+
+          {/* CTAs */}
+          <div
+            className="hero-ctas"
+            style={{
+              display: "flex",
+              gap: "13px",
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <Link
+              href="/dashboard"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "14px 34px",
+                borderRadius: "100px",
+                background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+                color: "white",
+                fontWeight: 700,
+                fontSize: "15px",
+                textDecoration: "none",
+                letterSpacing: "-0.015em",
+                boxShadow:
+                  "0 0 48px rgba(59,130,246,0.28), 0 2px 0 rgba(255,255,255,0.12) inset",
+              }}
+            >
+              <Shield size={16} />
+              Start Free Audit
+            </Link>
+            <Link
+              href="/chat"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "14px 34px",
+                borderRadius: "100px",
+                background: "rgba(255,255,255,0.035)",
+                color: "#e8f4fd",
+                fontWeight: 600,
+                fontSize: "15px",
+                textDecoration: "none",
+                border: "1px solid rgba(99,179,255,0.15)",
+                letterSpacing: "-0.015em",
+              }}
+            >
+              <MessageSquare size={16} />
+              Ask AI Assistant
+            </Link>
+          </div>
+
+          {/* Scroll hint */}
+          <div
+            style={{
+              marginTop: "72px",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <div
+              style={{
+                width: 1,
+                height: 64,
+                background:
+                  "linear-gradient(to bottom, rgba(99,179,255,0.35), transparent)",
+                borderRadius: "1px",
+              }}
+            />
+          </div>
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
-      <section
+      {/* ─────────────────── MARQUEE ─────────────────── */}
+      <div
         style={{
-          padding: "80px 32px",
-          maxWidth: "1100px",
-          margin: "0 auto",
+          padding: "18px 0",
+          borderTop: "1px solid rgba(99,179,255,0.055)",
+          borderBottom: "1px solid rgba(99,179,255,0.055)",
+          overflow: "hidden",
+          background: "rgba(0,0,0,0.18)",
         }}
       >
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          style={{ textAlign: "center", marginBottom: "60px" }}
-        >
-          <h2 style={{ fontSize: "38px", fontWeight: 800, marginBottom: "16px", letterSpacing: "-0.03em" }}>
-            Audit in{" "}
+        <div className="marquee-track">
+          {[...VULN_RULES, ...VULN_RULES].map((rule, i) => (
             <span
+              key={i}
               style={{
-                background: "linear-gradient(135deg, #34d399, #06b6d4)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
+                fontSize: "11.5px",
+                fontWeight: 700,
+                color: i % 3 === 0 ? "#4f9eff" : i % 3 === 1 ? "#9d7cff" : "#2dd4bf",
+                letterSpacing: "0.07em",
+                textTransform: "uppercase",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
               }}
             >
-              4 Simple Steps
+              {rule}
             </span>
-          </h2>
-        </motion.div>
+          ))}
+        </div>
+      </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-            gap: "24px",
-          }}
-        >
-          {steps.map((step, i) => (
-            <motion.div
-              key={step.step}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.12 }}
-              className="glass-card"
-              style={{ padding: "28px", position: "relative", overflow: "hidden" }}
+      {/* ─────────────────── BENTO GRID ─────────────────── */}
+      <section
+        id="features"
+        style={{ padding: "clamp(72px, 10vw, 136px) clamp(20px, 4vw, 52px)" }}
+      >
+        <div style={{ maxWidth: "1300px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "52px" }}>
+            <h2
+              style={{
+                fontSize: "clamp(1.9rem, 3.8vw, 3.4rem)",
+                fontWeight: 900,
+                letterSpacing: "-0.045em",
+                lineHeight: 1.08,
+                marginBottom: "14px",
+              }}
             >
+              Everything in One Platform
+            </h2>
+            <p
+              style={{ color: "#6b8cad", fontSize: "15.5px", maxWidth: "440px", margin: "0 auto" }}
+            >
+              From static analysis to AI-generated remediation — all in under two seconds.
+            </p>
+          </div>
+
+          {/*
+            Bento math:  6 cols × 3 rows = 18 cells
+            Card A: col-span-4, row-span-2 → 8 cells
+            Card B: col-span-2, row-span-1 → 2 cells  (col 5-6, row 1)
+            Card C: col-span-2, row-span-1 → 2 cells  (col 5-6, row 2)
+            Card D: col-span-6, row-span-1 → 6 cells  (row 3)
+            Total: 18 ✓ — grid-auto-flow: dense applied.
+          */}
+          <div
+            ref={bentoRef}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(6, 1fr)",
+              gridAutoFlow: "dense",
+              gap: "15px",
+            }}
+          >
+            {/* Card A — Static Analysis (tall left) */}
+            <div
+              className="bento-item"
+              style={{
+                gridColumn: "span 4",
+                gridRow: "span 2",
+                borderRadius: "22px",
+                background: "rgba(255,255,255,0.025)",
+                border: "1px solid rgba(99,179,255,0.09)",
+                padding: "38px 40px",
+                position: "relative",
+                overflow: "hidden",
+                minHeight: "380px",
+              }}
+            >
+              {/* Background image */}
               <div
                 style={{
                   position: "absolute",
-                  top: -10,
-                  right: -10,
-                  fontSize: "80px",
-                  fontWeight: 900,
-                  color: "rgba(99,179,255,0.04)",
-                  lineHeight: 1,
-                  userSelect: "none",
+                  inset: 0,
+                  backgroundImage:
+                    "url(https://picsum.photos/seed/dark-code-screen/800/600)",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  filter: "grayscale(100%) brightness(0.07) contrast(1.6)",
                 }}
-              >
-                {step.step}
+              />
+              <div style={{ position: "relative", zIndex: 1 }}>
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "5px 13px",
+                    borderRadius: "100px",
+                    background: "rgba(59,130,246,0.1)",
+                    border: "1px solid rgba(59,130,246,0.22)",
+                    fontSize: "10.5px",
+                    fontWeight: 700,
+                    color: "#4f9eff",
+                    letterSpacing: "0.07em",
+                    textTransform: "uppercase",
+                    marginBottom: "28px",
+                  }}
+                >
+                  <Code2 size={10} />
+                  Static Analysis Engine
+                </div>
+                <h3
+                  style={{
+                    fontSize: "clamp(1.5rem, 2.8vw, 2.6rem)",
+                    fontWeight: 900,
+                    letterSpacing: "-0.045em",
+                    lineHeight: 1.08,
+                    marginBottom: "18px",
+                  }}
+                >
+                  Regex AST analysis
+                  <br />
+                  across every Rust file
+                </h3>
+                <p
+                  style={{
+                    color: "#6b8cad",
+                    fontSize: "14.5px",
+                    lineHeight: 1.68,
+                    maxWidth: "420px",
+                  }}
+                >
+                  7 security rules check every function signature, CPI call,
+                  PDA seed derivation, and arithmetic operation across your
+                  entire Anchor program in parallel.
+                </p>
+
+                {/* Rule badges */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "8px",
+                    marginTop: "28px",
+                  }}
+                >
+                  {["Signer", "Ownership", "CPI", "PDA", "Overflow", "Authority", "unwrap()"].map(
+                    (tag, i) => (
+                      <span
+                        key={tag}
+                        style={{
+                          padding: "4px 11px",
+                          borderRadius: "100px",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          background: "rgba(255,255,255,0.04)",
+                          border: "1px solid rgba(99,179,255,0.1)",
+                          color: "#8aa3c8",
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        {tag}
+                      </span>
+                    )
+                  )}
+                </div>
               </div>
+            </div>
+
+            {/* Card B — AI Explanations */}
+            <div
+              className="bento-item"
+              style={{
+                gridColumn: "span 2",
+                gridRow: "span 1",
+                borderRadius: "22px",
+                background:
+                  "linear-gradient(140deg, rgba(139,92,246,0.09) 0%, rgba(59,130,246,0.05) 100%)",
+                border: "1px solid rgba(139,92,246,0.17)",
+                padding: "28px 30px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
               <div
                 style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: "10px",
-                  background: "rgba(59, 130, 246, 0.15)",
-                  border: "1px solid rgba(59, 130, 246, 0.3)",
+                  width: 42,
+                  height: 42,
+                  borderRadius: "12px",
+                  background: "rgba(139,92,246,0.13)",
+                  border: "1px solid rgba(139,92,246,0.28)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: "#63b3ff",
-                  marginBottom: "16px",
+                  color: "#9d7cff",
                 }}
               >
-                {step.icon}
+                <Zap size={20} />
               </div>
-              <div style={{ fontSize: "12px", color: "#3b82f6", fontWeight: 700, marginBottom: "8px" }}>
-                STEP {step.step}
+              <div>
+                <h3
+                  style={{
+                    fontSize: "1.15rem",
+                    fontWeight: 800,
+                    letterSpacing: "-0.03em",
+                    marginBottom: "8px",
+                  }}
+                >
+                  Gemini AI Explanations
+                </h3>
+                <p style={{ color: "#6b8cad", fontSize: "13px", lineHeight: 1.62 }}>
+                  Every finding gets an on-demand exploit scenario, root cause
+                  analysis, and secure Rust fix — powered by Gemini 2.5 Flash.
+                </p>
               </div>
-              <h3 style={{ fontSize: "15px", fontWeight: 700, marginBottom: "8px" }}>{step.title}</h3>
-              <p style={{ fontSize: "13px", color: "#8aa3c8", lineHeight: 1.6 }}>{step.desc}</p>
-            </motion.div>
+            </div>
+
+            {/* Card C — Monaco Viewer */}
+            <div
+              className="bento-item"
+              style={{
+                gridColumn: "span 2",
+                gridRow: "span 1",
+                borderRadius: "22px",
+                background:
+                  "linear-gradient(140deg, rgba(45,212,191,0.07) 0%, rgba(6,182,212,0.04) 100%)",
+                border: "1px solid rgba(45,212,191,0.14)",
+                padding: "28px 30px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <div
+                style={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: "12px",
+                  background: "rgba(45,212,191,0.1)",
+                  border: "1px solid rgba(45,212,191,0.24)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#2dd4bf",
+                }}
+              >
+                <Eye size={20} />
+              </div>
+              <div>
+                <h3
+                  style={{
+                    fontSize: "1.15rem",
+                    fontWeight: 800,
+                    letterSpacing: "-0.03em",
+                    marginBottom: "8px",
+                  }}
+                >
+                  Monaco Code Viewer
+                </h3>
+                <p style={{ color: "#6b8cad", fontSize: "13px", lineHeight: 1.62 }}>
+                  Interactive editor highlights vulnerable lines with inline
+                  severity markers and jump-to-line navigation.
+                </p>
+              </div>
+            </div>
+
+            {/* Card D — GitHub Scanner (full width, image scale) */}
+            <div
+              className="bento-item scale-image"
+              style={{
+                gridColumn: "span 6",
+                gridRow: "span 1",
+                borderRadius: "22px",
+                background: "rgba(255,255,255,0.02)",
+                border: "1px solid rgba(16,185,129,0.1)",
+                padding: "34px 40px",
+                display: "flex",
+                alignItems: "center",
+                gap: "48px",
+                overflow: "hidden",
+                position: "relative",
+              }}
+            >
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "5px 13px",
+                    borderRadius: "100px",
+                    background: "rgba(16,185,129,0.09)",
+                    border: "1px solid rgba(16,185,129,0.2)",
+                    fontSize: "10.5px",
+                    fontWeight: 700,
+                    color: "#34d399",
+                    letterSpacing: "0.07em",
+                    textTransform: "uppercase",
+                    marginBottom: "16px",
+                  }}
+                >
+                  <GitBranch size={10} />
+                  GitHub Repository Scanner
+                </div>
+                <h3
+                  style={{
+                    fontSize: "clamp(1.2rem, 2vw, 1.75rem)",
+                    fontWeight: 900,
+                    letterSpacing: "-0.04em",
+                    marginBottom: "12px",
+                    lineHeight: 1.15,
+                  }}
+                >
+                  Paste a GitHub URL.
+                  <br />
+                  Get a full security report.
+                </h3>
+                <p
+                  style={{
+                    color: "#6b8cad",
+                    fontSize: "14px",
+                    lineHeight: 1.68,
+                    maxWidth: "500px",
+                  }}
+                >
+                  SolShield clones the repo, finds every{" "}
+                  <code
+                    style={{
+                      fontFamily: "JetBrains Mono, monospace",
+                      fontSize: "12px",
+                      color: "#4f9eff",
+                      background: "rgba(59,130,246,0.08)",
+                      padding: "1px 6px",
+                      borderRadius: "4px",
+                    }}
+                  >
+                    .rs
+                  </code>{" "}
+                  file, runs the full detection suite, and returns findings —
+                  no authentication required.
+                </p>
+              </div>
+              <div
+                style={{
+                  width: "clamp(180px, 22%, 300px)",
+                  height: "130px",
+                  borderRadius: "14px",
+                  backgroundImage:
+                    "url(https://picsum.photos/seed/server-rack-dark/600/300)",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  filter:
+                    "grayscale(80%) brightness(0.55) contrast(1.25) saturate(0.4)",
+                  flexShrink: 0,
+                  border: "1px solid rgba(99,179,255,0.09)",
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────────────── SCRUBBING TEXT REVEAL ─────────────────── */}
+      <section
+        id="how"
+        ref={scrubRef}
+        style={{
+          padding: "clamp(72px, 10vw, 136px) clamp(20px, 4vw, 52px)",
+          maxWidth: "1300px",
+          margin: "0 auto",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "clamp(40px, 7vw, 96px)",
+          alignItems: "start",
+        }}
+      >
+        {/* Left — sticky title */}
+        <div style={{ position: "sticky", top: "38vh", alignSelf: "start" }}>
+          <p
+            style={{
+              fontSize: "10.5px",
+              fontWeight: 700,
+              color: "#4f9eff",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              marginBottom: "14px",
+            }}
+          >
+            The Process
+          </p>
+          <h2
+            style={{
+              fontSize: "clamp(2rem, 3.4vw, 3.1rem)",
+              fontWeight: 900,
+              letterSpacing: "-0.048em",
+              lineHeight: 1.09,
+              marginBottom: "22px",
+            }}
+          >
+            Why developers
+            <br />
+            trust SolShield
+          </h2>
+          <p style={{ color: "#6b8cad", lineHeight: 1.7, fontSize: "14.5px", maxWidth: "340px" }}>
+            Built for hackathon velocity and mainnet-grade security assurance.
+          </p>
+
+          <Link
+            href="/dashboard"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              marginTop: "32px",
+              fontSize: "13px",
+              fontWeight: 700,
+              color: "#4f9eff",
+              textDecoration: "none",
+              letterSpacing: "-0.01em",
+            }}
+          >
+            Start auditing <ArrowUpRight size={14} />
+          </Link>
+        </div>
+
+        {/* Right — scrub paragraph + feature rows */}
+        <div>
+          {/* Scrubbing paragraph */}
+          <p
+            style={{
+              fontSize: "clamp(1.35rem, 2.2vw, 1.9rem)",
+              fontWeight: 700,
+              lineHeight: 1.52,
+              letterSpacing: "-0.03em",
+            }}
+          >
+            {SCRUB_SENTENCE.split(" ").map((word, i) => (
+              <span key={i} className="scrub-word" style={{ opacity: 0.06 }}>
+                {word}{" "}
+              </span>
+            ))}
+          </p>
+
+          {/* Feature rows */}
+          <div
+            className="scrub-feature-list"
+            style={{
+              marginTop: "48px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "14px",
+            }}
+          >
+            {[
+              {
+                icon: <Lock size={15} />,
+                title: "Upload ZIP or paste a GitHub URL",
+                desc: "No account required for quick audits. Authenticated users get scan history.",
+              },
+              {
+                icon: <Code2 size={15} />,
+                title: "Parallel regex-based analysis",
+                desc: "All 7 rules run simultaneously across every .rs file — scan completes in under 2 seconds.",
+              },
+              {
+                icon: <Zap size={15} />,
+                title: "On-demand AI enrichment",
+                desc: "Click any finding to fetch a Gemini explanation, exploit scenario, and fix — no wait during the initial scan.",
+              },
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="scrub-feature bento-item"
+                style={{
+                  display: "flex",
+                  gap: "15px",
+                  alignItems: "flex-start",
+                  padding: "20px 22px",
+                  borderRadius: "16px",
+                  background: "rgba(255,255,255,0.022)",
+                  border: "1px solid rgba(99,179,255,0.07)",
+                }}
+              >
+                <div
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: "10px",
+                    background: "rgba(59,130,246,0.09)",
+                    border: "1px solid rgba(59,130,246,0.18)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#4f9eff",
+                    flexShrink: 0,
+                  }}
+                >
+                  {item.icon}
+                </div>
+                <div>
+                  <h4
+                    style={{
+                      fontWeight: 700,
+                      fontSize: "14px",
+                      letterSpacing: "-0.02em",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    {item.title}
+                  </h4>
+                  <p style={{ color: "#6b8cad", fontSize: "13px", lineHeight: 1.6 }}>
+                    {item.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────────────── STATS ─────────────────── */}
+      <section
+        ref={statsRef}
+        style={{
+          padding: "clamp(52px, 8vw, 100px) clamp(20px, 4vw, 52px)",
+          borderTop: "1px solid rgba(99,179,255,0.055)",
+          borderBottom: "1px solid rgba(99,179,255,0.055)",
+          background: "rgba(0,0,0,0.14)",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1300px",
+            margin: "0 auto",
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "40px",
+            textAlign: "center",
+          }}
+        >
+          {[
+            { value: "7+",    label: "Vulnerability Rules",     sub: "SOL-001 through SOL-007" },
+            { value: "< 2s",  label: "Average Scan Speed",      sub: "Across full Anchor projects" },
+            { value: "100%",  label: "AI-Powered Analysis",     sub: "Gemini 2.5 Flash on every finding" },
+          ].map((stat) => (
+            <div key={stat.label} className="stat-block">
+              <div
+                style={{
+                  fontSize: "clamp(2.4rem, 4.8vw, 5rem)",
+                  fontWeight: 900,
+                  letterSpacing: "-0.06em",
+                  lineHeight: 1,
+                  marginBottom: "10px",
+                  background: "linear-gradient(135deg, #4f9eff, #9d7cff)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                {stat.value}
+              </div>
+              <p
+                style={{
+                  fontWeight: 700,
+                  fontSize: "14px",
+                  letterSpacing: "-0.01em",
+                  marginBottom: "5px",
+                }}
+              >
+                {stat.label}
+              </p>
+              <p style={{ color: "#4a6280", fontSize: "12px" }}>{stat.sub}</p>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* VULNERABILITY TABLE */}
+      {/* ─────────────────── CTA ─────────────────── */}
       <section
         style={{
-          padding: "80px 32px",
-          maxWidth: "900px",
-          margin: "0 auto",
+          padding: "clamp(88px, 14vw, 168px) clamp(20px, 4vw, 52px)",
+          textAlign: "center",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          style={{ textAlign: "center", marginBottom: "40px" }}
-        >
-          <h2 style={{ fontSize: "34px", fontWeight: 800, marginBottom: "12px" }}>
-            Vulnerabilities We{" "}
-            <span
-              style={{
-                background: "linear-gradient(135deg, #ef4444, #f97316)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
-              Detect
-            </span>
-          </h2>
-          <p style={{ color: "#8aa3c8", fontSize: "15px" }}>
-            7 rule-based detectors targeting the most critical Solana attack surfaces.
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="glass-card"
-          style={{ overflow: "hidden" }}
-        >
-          <div
-            style={{
-              padding: "14px 24px",
-              borderBottom: "1px solid rgba(99,179,255,0.08)",
-              display: "grid",
-              gridTemplateColumns: "80px 1fr 100px",
-              gap: "16px",
-              fontSize: "11px",
-              fontWeight: 700,
-              color: "#4a6280",
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-            }}
-          >
-            <span>Rule ID</span>
-            <span>Vulnerability</span>
-            <span>Severity</span>
-          </div>
-          {vulnerabilities.map((vuln, i) => (
-            <motion.div
-              key={vuln.id}
-              initial={{ opacity: 0, x: -10 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.06 }}
-              style={{
-                padding: "16px 24px",
-                display: "grid",
-                gridTemplateColumns: "80px 1fr 100px",
-                gap: "16px",
-                alignItems: "center",
-                borderBottom: i < vulnerabilities.length - 1 ? "1px solid rgba(99,179,255,0.05)" : "none",
-                transition: "background 0.2s",
-              }}
-              whileHover={{ backgroundColor: "rgba(99, 179, 255, 0.04)" }}
-            >
-              <code style={{ fontSize: "12px", color: "#3b82f6", fontFamily: "JetBrains Mono, monospace" }}>
-                {vuln.id}
-              </code>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <AlertTriangle size={14} color={severityColors[vuln.severity]} />
-                <span style={{ fontSize: "14px", fontWeight: 500 }}>{vuln.name}</span>
-              </div>
-              <span
-                className={`badge badge-${vuln.severity.toLowerCase()}`}
-                style={{ justifySelf: "start" }}
-              >
-                {vuln.severity}
-              </span>
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
-
-      {/* CTA */}
-      <section style={{ padding: "80px 32px 120px", textAlign: "center" }}>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="glass-card"
+        <div
           style={{
-            maxWidth: "700px",
-            margin: "0 auto",
-            padding: "60px 40px",
-            background: "linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%)",
-            border: "1px solid rgba(99, 179, 255, 0.2)",
+            position: "absolute",
+            inset: 0,
+            background:
+              "radial-gradient(ellipse 55% 45% at 50% 52%, rgba(59,130,246,0.07) 0%, rgba(139,92,246,0.04) 40%, transparent 75%)",
+          }}
+        />
+        <div
+          className="cta-content"
+          style={{
             position: "relative",
-            overflow: "hidden",
+            zIndex: 1,
+            maxWidth: "820px",
+            margin: "0 auto",
           }}
         >
-          {/* Glow */}
+          <h2
+            style={{
+              fontSize: "clamp(2.6rem, 5.8vw, 5.8rem)",
+              fontWeight: 900,
+              letterSpacing: "-0.055em",
+              lineHeight: 1.02,
+              marginBottom: "24px",
+            }}
+          >
+            <span style={{ color: "#e8f4fd" }}>Deploy With</span>
+            <br />
+            <span
+              style={{
+                background:
+                  "linear-gradient(135deg, #4f9eff 0%, #9d7cff 50%, #2dd4bf 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              Full Confidence
+            </span>
+          </h2>
+          <p
+            style={{
+              color: "#6b8cad",
+              fontSize: "clamp(15px, 1.6vw, 18px)",
+              marginBottom: "46px",
+              lineHeight: 1.7,
+              maxWidth: "560px",
+              margin: "0 auto 46px",
+            }}
+          >
+            Upload your Anchor project ZIP or paste a GitHub URL. Get a
+            complete AI security report in seconds. No login required.
+          </p>
           <div
             style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "300px",
-              height: "300px",
-              background: "radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%)",
-              pointerEvents: "none",
+              display: "flex",
+              gap: "13px",
+              justifyContent: "center",
+              flexWrap: "wrap",
             }}
-          />
-          <Shield
-            size={48}
-            color="#63b3ff"
-            style={{ marginBottom: "20px", filter: "drop-shadow(0 0 20px rgba(99,179,255,0.4))" }}
-          />
-          <h2 style={{ fontSize: "36px", fontWeight: 800, marginBottom: "16px", letterSpacing: "-0.03em" }}>
-            Ready to Audit Your Contract?
-          </h2>
-          <p style={{ color: "#8aa3c8", marginBottom: "36px", lineHeight: 1.7, fontSize: "16px" }}>
-            Upload your Anchor project ZIP or paste a GitHub URL — get a full AI security report in seconds. No login required.
-          </p>
-          <div style={{ display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/dashboard" className="btn-primary" style={{ fontSize: "15px", padding: "14px 36px" }}>
+          >
+            <Link
+              href="/dashboard"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "9px",
+                padding: "16px 44px",
+                borderRadius: "100px",
+                background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+                color: "white",
+                fontWeight: 700,
+                fontSize: "16px",
+                textDecoration: "none",
+                letterSpacing: "-0.015em",
+                boxShadow:
+                  "0 0 64px rgba(59,130,246,0.22), 0 2px 0 rgba(255,255,255,0.1) inset",
+              }}
+            >
               <Zap size={18} />
-              Start Scanning Now
+              Start Scanning Free
             </Link>
-            <Link href="/chat" className="btn-secondary" style={{ fontSize: "15px", padding: "14px 36px" }}>
+            <Link
+              href="/chat"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "9px",
+                padding: "16px 44px",
+                borderRadius: "100px",
+                background: "transparent",
+                color: "#e8f4fd",
+                fontWeight: 600,
+                fontSize: "16px",
+                textDecoration: "none",
+                border: "1px solid rgba(99,179,255,0.18)",
+                letterSpacing: "-0.015em",
+              }}
+            >
               <Terminal size={18} />
               Open AI Chat
             </Link>
           </div>
-        </motion.div>
+        </div>
       </section>
 
-      {/* FOOTER */}
+      {/* ─────────────────── FOOTER ─────────────────── */}
       <footer
         style={{
-          borderTop: "1px solid rgba(99,179,255,0.08)",
-          padding: "32px",
-          textAlign: "center",
-          color: "#4a6280",
-          fontSize: "13px",
+          borderTop: "1px solid rgba(99,179,255,0.055)",
+          padding: "28px clamp(20px, 4vw, 52px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "14px",
+          maxWidth: "1300px",
+          margin: "0 auto",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "8px" }}>
-          <Shield size={16} color="#3b82f6" />
-          <span style={{ fontWeight: 700, color: "#8aa3c8" }}>SolShield AI</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <Shield size={15} color="#3b82f6" />
+          <span
+            style={{
+              fontWeight: 800,
+              fontSize: "13.5px",
+              color: "#8aa3c8",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            SolShield AI
+          </span>
         </div>
-        <p>AI-Powered Solana Smart Contract Security Auditing Platform</p>
+        <p style={{ fontSize: "12px", color: "#3a4f66" }}>
+          AI-Powered Solana Smart Contract Security Auditing
+        </p>
+        <div
+          style={{
+            display: "flex",
+            gap: "20px",
+            fontSize: "12px",
+            color: "#4a6280",
+          }}
+        >
+          {[
+            { label: "Dashboard", href: "/dashboard" },
+            { label: "AI Chat", href: "/chat" },
+          ].map(({ label, href }) => (
+            <Link
+              key={label}
+              href={href}
+              className="nav-link"
+              style={{ color: "inherit", textDecoration: "none" }}
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
       </footer>
-    </div>
+    </main>
   );
 }
