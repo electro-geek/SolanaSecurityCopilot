@@ -1,6 +1,7 @@
 import os
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from database import engine, Base
 from routes import scan, github, chat, history
 from auth import get_current_user
@@ -46,7 +47,43 @@ app.add_middleware(
 app.include_router(scan.router)
 app.include_router(github.router)
 app.include_router(chat.router)
-app.include_router(history.router) # We'll create this next
+app.include_router(history.router)
+
+# ── Decoy trap: common paths abused by credential-harvesting bots ──────────
+# Return a convincing 200 with fake data so the bot thinks it found nothing
+# useful, while we log the offending IP for monitoring.
+_HONEYPOT_PATHS = {
+    "/.env",
+    "/.env.local",
+    "/.env.production",
+    "/.env.backup",
+    "/config.php",
+    "/wp-config.php",
+    "/config.yaml",
+    "/config.yml",
+    "/secrets.json",
+    "/.git/config",
+}
+
+@app.middleware("http")
+async def block_probe_paths(request: Request, call_next):
+    if request.url.path in _HONEYPOT_PATHS:
+        # Log the probe so you can track/block repeat offenders
+        import logging
+        logging.getLogger("solshield.security").warning(
+            "Probe attempt: %s %s from %s",
+            request.method,
+            request.url.path,
+            request.client.host if request.client else "unknown",
+        )
+        # Return empty 404 — don't hint that anything interesting is here
+        return JSONResponse(status_code=404, content={"detail": "Not Found"})
+    return await call_next(request)
+
+@app.get("/")
+def root():
+    """API root — confirms the service is alive."""
+    return {"service": "SolShield AI", "docs": "/docs", "health": "/health"}
 
 @app.get("/health")
 def health_check():
