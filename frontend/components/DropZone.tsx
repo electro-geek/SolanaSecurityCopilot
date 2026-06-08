@@ -40,13 +40,11 @@ export default function DropZone({ onFile, disabled }: Props) {
       {...getRootProps()}
       style={{
         padding: "40px 24px",
-        borderRadius: "16px",
-        border: `2px dashed ${isDragActive ? "#3b82f6" : "rgba(99, 179, 255, 0.2)"}`,
-        background: isDragActive
-          ? "rgba(59, 130, 246, 0.08)"
-          : "rgba(255, 255, 255, 0.02)",
+        borderRadius: "8px",
+        border: `1.5px dashed ${isDragActive ? "var(--primary)" : "var(--border)"}`,
+        background: isDragActive ? "var(--primary-soft)" : "var(--panel)",
         cursor: disabled ? "not-allowed" : "pointer",
-        transition: "all 0.3s ease",
+        transition: "all 0.25s ease",
         textAlign: "center",
         position: "relative",
       }}
@@ -57,35 +55,49 @@ export default function DropZone({ onFile, disabled }: Props) {
         {selectedFile ? (
           <motion.div
             key="file"
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "12px",
+            }}
           >
             <div
               style={{
                 width: 56,
                 height: 56,
-                borderRadius: "14px",
-                background: "rgba(34, 197, 94, 0.12)",
-                border: "1px solid rgba(34, 197, 94, 0.25)",
+                borderRadius: "8px",
+                background: "color-mix(in srgb, var(--sev-low) 14%, transparent)",
+                border: "1px solid color-mix(in srgb, var(--sev-low) 30%, transparent)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <FileArchive size={28} color="#22c55e" />
+              <FileArchive size={28} style={{ color: "var(--sev-low)" }} />
             </div>
             <div>
-              <div style={{ fontSize: "14px", fontWeight: 600, color: "#e8f4fd" }}>
+              <div
+                style={{ fontSize: "14px", fontWeight: 600, color: "var(--foreground)" }}
+              >
                 {selectedFile.name}
               </div>
-              <div style={{ fontSize: "12px", color: "#8aa3c8", marginTop: "4px" }}>
+              <div style={{ fontSize: "12px", color: "var(--muted)", marginTop: "4px" }}>
                 {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
               </div>
             </div>
             <div
-              style={{ display: "flex", alignItems: "center", gap: "6px", color: "#22c55e", fontSize: "13px" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                color: "var(--sev-low)",
+                fontSize: "13px",
+                fontWeight: 600,
+              }}
             >
               <CheckCircle size={14} />
               Ready to scan
@@ -96,8 +108,8 @@ export default function DropZone({ onFile, disabled }: Props) {
                 position: "absolute",
                 top: "12px",
                 right: "12px",
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.1)",
+                background: "var(--surface)",
+                border: "1px solid var(--border)",
                 borderRadius: "6px",
                 width: "28px",
                 height: "28px",
@@ -105,7 +117,7 @@ export default function DropZone({ onFile, disabled }: Props) {
                 alignItems: "center",
                 justifyContent: "center",
                 cursor: "pointer",
-                color: "#8aa3c8",
+                color: "var(--muted)",
               }}
             >
               <X size={14} />
@@ -117,7 +129,12 @@ export default function DropZone({ onFile, disabled }: Props) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "12px",
+            }}
           >
             <motion.div
               animate={{ y: isDragActive ? -8 : 0 }}
@@ -125,21 +142,28 @@ export default function DropZone({ onFile, disabled }: Props) {
               style={{
                 width: 56,
                 height: 56,
-                borderRadius: "14px",
-                background: "rgba(59, 130, 246, 0.1)",
-                border: "1px solid rgba(59, 130, 246, 0.2)",
+                borderRadius: "8px",
+                background: "var(--primary-soft)",
+                border: "1px solid var(--primary)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <Upload size={24} color="#63b3ff" />
+              <Upload size={24} style={{ color: "var(--primary)" }} />
             </motion.div>
             <div>
-              <div style={{ fontSize: "15px", fontWeight: 600, color: "#e8f4fd", marginBottom: "4px" }}>
+              <div
+                style={{
+                  fontSize: "15px",
+                  fontWeight: 700,
+                  color: "var(--foreground)",
+                  marginBottom: "4px",
+                }}
+              >
                 {isDragActive ? "Drop it here!" : "Drag & drop your ZIP file"}
               </div>
-              <div style={{ fontSize: "13px", color: "#4a6280" }}>
+              <div style={{ fontSize: "13px", color: "var(--muted)" }}>
                 or click to browse — .zip files only, max 50MB
               </div>
             </div>

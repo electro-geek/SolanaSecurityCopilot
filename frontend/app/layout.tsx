@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
-import { Outfit } from "next/font/google";
+import { ThemeProvider, THEME_INIT_SCRIPT } from "@/context/ThemeContext";
+import { DM_Sans } from "next/font/google";
 
-const outfit = Outfit({
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  variable: "--font-outfit",
+  variable: "--font-heading",
   display: "swap",
-  weight: ["400", "500", "600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -15,10 +16,15 @@ export const metadata: Metadata = {
   title: "SolShield AI — Solana Smart Contract Security Auditor",
   description:
     "AI-powered Solana smart contract security auditing platform. Detect vulnerabilities, get AI explanations, and fix issues before deployment.",
-  keywords: "Solana, smart contract, security, audit, vulnerability scanner, Anchor, Rust",
+  keywords:
+    "Solana, smart contract, security, audit, vulnerability scanner, Anchor, Rust",
+  icons: {
+    icon: [{ url: "/logo.svg", type: "image/svg+xml" }],
+  },
   openGraph: {
     title: "SolShield AI — Solana Security Auditor",
-    description: "AI-Powered Solana Smart Contract Security Auditor. Secure your contracts with SolShield.",
+    description:
+      "AI-Powered Solana Smart Contract Security Auditor. Secure your contracts with SolShield.",
     url: "https://solshield.mritunjay.live",
     siteName: "SolShield AI",
     images: [
@@ -35,7 +41,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "SolShield AI — Solana Security Auditor",
-    description: "AI-Powered Solana Smart Contract Security Auditor. Secure your contracts with SolShield.",
+    description:
+      "AI-Powered Solana Smart Contract Security Auditor. Secure your contracts with SolShield.",
     images: ["/og-image.png"],
     creator: "@mritunjay",
   },
@@ -47,14 +54,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${outfit.variable} h-full`}>
-      <body className={`${outfit.variable} min-h-full`}>
-        <AuthProvider>
-          <div className="bg-grid" aria-hidden="true" />
-          <div className="glow-orb glow-orb-1" aria-hidden="true" />
-          <div className="glow-orb glow-orb-2" aria-hidden="true" />
-          {children}
-        </AuthProvider>
+    <html
+      lang="en"
+      className={`${dmSans.variable} theme-graphite-lab h-full`}
+      suppressHydrationWarning
+    >
+      <body className="min-h-full">
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <ThemeProvider>
+          <AuthProvider>
+            <div className="grid-bg" aria-hidden="true" />
+            {children}
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

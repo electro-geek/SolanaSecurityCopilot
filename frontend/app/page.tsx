@@ -6,16 +6,18 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import Link from "next/link";
 import {
-  Shield,
   Zap,
   ArrowUpRight,
   Code2,
   GitBranch,
   MessageSquare,
-  Terminal,
   Eye,
   Lock,
+  CheckCircle2,
+  ShieldCheck,
 } from "lucide-react";
+import Logo, { LogoMark } from "@/components/Logo";
+import ThemePicker from "@/components/ThemePicker";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -29,42 +31,46 @@ const VULN_RULES = [
   "SOL-007 · Missing Authority Check",
 ];
 
+const TRACE_ROWS = [
+  { id: "SOL-001", label: "signer_validation", status: "fail" },
+  { id: "SOL-004", label: "insecure_cpi", status: "fail" },
+  { id: "SOL-005", label: "pda_validation", status: "warn" },
+  { id: "SOL-002", label: "unsafe_unwrap", status: "pass" },
+  { id: "SOL-006", label: "arithmetic_overflow", status: "pass" },
+];
+
 const SCRUB_SENTENCE =
   "Every Rust file parsed. Every exploit scenario modeled. Every fix explained in plain language before a single user's funds are lost on-chain.";
 
 export default function LandingPage() {
-  const mainRef     = useRef<HTMLElement>(null);
-  const bentoRef    = useRef<HTMLDivElement>(null);
-  const scrubRef    = useRef<HTMLElement>(null);
-  const statsRef    = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
+  const bentoRef = useRef<HTMLDivElement>(null);
+  const scrubRef = useRef<HTMLElement>(null);
+  const statsRef = useRef<HTMLElement>(null);
 
   useGSAP(
     () => {
-      /* ── Hero entrance ── */
       const heroTl = gsap.timeline({ defaults: { ease: "power4.out" } });
       heroTl
-        .from(".hero-eyebrow", { y: 24, opacity: 0, duration: 0.7 })
-        .from(".hero-title",   { y: 56, opacity: 0, duration: 1.1 }, "-=0.45")
-        .from(".hero-sub",     { y: 36, opacity: 0, duration: 0.85 }, "-=0.65")
-        .from(".hero-ctas",    { y: 24, opacity: 0, duration: 0.7 }, "-=0.5");
+        .from(".hero-eyebrow", { y: 24, opacity: 0, duration: 0.6 })
+        .from(".hero-title", { y: 48, opacity: 0, duration: 1 }, "-=0.4")
+        .from(".hero-sub", { y: 32, opacity: 0, duration: 0.8 }, "-=0.6")
+        .from(".hero-ctas", { y: 22, opacity: 0, duration: 0.6 }, "-=0.5")
+        .from(".hero-trace", { y: 60, opacity: 0, duration: 0.9 }, "-=0.35")
+        .from(".trace-row", { x: -16, opacity: 0, stagger: 0.08, duration: 0.4 }, "-=0.4");
 
-      /* ── Bento cards ── */
       gsap.from(".bento-item", {
-        y: 64,
+        y: 56,
         opacity: 0,
-        duration: 0.8,
-        stagger: 0.11,
+        duration: 0.7,
+        stagger: 0.1,
         ease: "power3.out",
-        scrollTrigger: {
-          trigger: bentoRef.current,
-          start: "top 78%",
-        },
+        scrollTrigger: { trigger: bentoRef.current, start: "top 80%" },
       });
 
-      /* ── Scrubbing text reveal ── */
       gsap.fromTo(
         ".scrub-word",
-        { opacity: 0.06 },
+        { opacity: 0.12 },
         {
           opacity: 1,
           stagger: 0.035,
@@ -72,64 +78,36 @@ export default function LandingPage() {
           scrollTrigger: {
             trigger: scrubRef.current,
             start: "top 65%",
-            end: "bottom 35%",
-            scrub: 1.8,
+            end: "bottom 40%",
+            scrub: 1.6,
           },
         }
       );
 
-      /* ── Feature rows fade-up ── */
       gsap.from(".scrub-feature", {
-        y: 32,
+        y: 28,
         opacity: 0,
-        duration: 0.65,
-        stagger: 0.14,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".scrub-feature-list",
-          start: "top 80%",
-        },
-      });
-
-      /* ── Image scale on scroll ── */
-      gsap.fromTo(
-        ".scale-image",
-        { scale: 0.86, opacity: 0.35 },
-        {
-          scale: 1,
-          opacity: 1,
-          duration: 1.1,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: ".scale-image",
-            start: "top 82%",
-          },
-        }
-      );
-
-      /* ── Stats count-up ── */
-      gsap.from(".stat-block", {
-        y: 40,
-        opacity: 0,
-        duration: 0.7,
+        duration: 0.6,
         stagger: 0.12,
         ease: "power3.out",
-        scrollTrigger: {
-          trigger: statsRef.current,
-          start: "top 82%",
-        },
+        scrollTrigger: { trigger: ".scrub-feature-list", start: "top 82%" },
       });
 
-      /* ── CTA fade up ── */
-      gsap.from(".cta-content", {
-        y: 48,
+      gsap.from(".stat-block", {
+        y: 36,
         opacity: 0,
-        duration: 0.9,
+        duration: 0.6,
+        stagger: 0.1,
         ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".cta-content",
-          start: "top 80%",
-        },
+        scrollTrigger: { trigger: statsRef.current, start: "top 84%" },
+      });
+
+      gsap.from(".cta-content", {
+        y: 40,
+        opacity: 0,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: { trigger: ".cta-content", start: "top 82%" },
       });
     },
     { scope: mainRef }
@@ -138,107 +116,70 @@ export default function LandingPage() {
   return (
     <main
       ref={mainRef}
-      className="landing-root"
       style={{
         overflowX: "hidden",
         width: "100%",
-        maxWidth: "100%",
-        background: "var(--bg-primary)",
-        color: "var(--text-primary)",
+        position: "relative",
+        zIndex: 1,
+        color: "var(--foreground)",
       }}
     >
-      {/* ─────────────────── NAV ─────────────────── */}
+      {/* ─────────── NAV ─────────── */}
       <nav
         style={{
           position: "fixed",
-          top: "18px",
+          top: "16px",
           left: "50%",
           transform: "translateX(-50%)",
           zIndex: 1000,
           display: "flex",
           alignItems: "center",
-          gap: "28px",
-          padding: "10px 20px",
-          borderRadius: "100px",
-          background: "rgba(8, 12, 22, 0.78)",
-          backdropFilter: "blur(28px)",
-          WebkitBackdropFilter: "blur(28px)",
-          border: "1px solid rgba(99, 179, 255, 0.11)",
-          boxShadow: "0 8px 40px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.04) inset",
+          gap: "24px",
+          padding: "8px 10px 8px 18px",
+          borderRadius: "12px",
+          background: "var(--surface-glass)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          border: "1px solid var(--border)",
+          boxShadow: "0 8px 28px rgba(0,0,0,0.18)",
           whiteSpace: "nowrap",
+          maxWidth: "calc(100vw - 24px)",
         }}
       >
-        {/* Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: "9px" }}>
-          <div
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: "8px",
-              background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <Shield size={14} color="white" />
-          </div>
-          <span
-            style={{
-              fontWeight: 800,
-              fontSize: "14px",
-              letterSpacing: "-0.03em",
-              background: "linear-gradient(135deg, #63b3ff, #a78bfa)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            SolShield
-          </span>
-        </div>
-
-        {/* Links */}
+        <Logo size={24} fontSize={14} />
         <div
           style={{
             display: "flex",
-            gap: "22px",
+            gap: "20px",
             fontSize: "12.5px",
-            fontWeight: 500,
-            color: "rgba(138, 163, 200, 0.8)",
+            fontWeight: 600,
+            color: "var(--muted)",
           }}
+          className="landing-nav-links"
         >
           {[
             { label: "Features", href: "#features" },
             { label: "How It Works", href: "#how" },
+            { label: "Brand Kit", href: "/brandkit" },
             { label: "Dashboard", href: "/dashboard" },
           ].map(({ label, href }) => (
-            <Link key={label} href={href} className="nav-link" style={{ color: "inherit", textDecoration: "none" }}>
+            <Link
+              key={label}
+              href={href}
+              className="nav-link"
+              style={{ color: "inherit", textDecoration: "none" }}
+            >
               {label}
             </Link>
           ))}
         </div>
-
-        {/* CTA */}
-        <Link
-          href="/dashboard"
-          style={{
-            padding: "7px 18px",
-            borderRadius: "100px",
-            background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-            color: "white",
-            fontSize: "12px",
-            fontWeight: 700,
-            textDecoration: "none",
-            letterSpacing: "0.01em",
-            boxShadow: "0 0 24px rgba(59,130,246,0.3)",
-          }}
-        >
+        <ThemePicker />
+        <Link href="/dashboard" className="btn-primary" style={{ padding: "7px 16px", fontSize: "12.5px" }}>
           Start Audit
         </Link>
       </nav>
 
-      {/* ─────────────────── HERO ─────────────────── */}
+      {/* ─────────── HERO ─────────── */}
       <section
         style={{
           minHeight: "100vh",
@@ -247,127 +188,48 @@ export default function LandingPage() {
           alignItems: "center",
           justifyContent: "center",
           textAlign: "center",
-          padding: "120px 32px 80px",
+          padding: "130px 24px 64px",
           position: "relative",
-          overflow: "hidden",
         }}
       >
-        {/* Full-bleed background image */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage:
-              "url(https://picsum.photos/seed/solana-blockchain-network/1920/1080)",
-            backgroundSize: "cover",
-            backgroundPosition: "center 40%",
-            filter: "grayscale(100%) brightness(0.12) contrast(1.3)",
-            zIndex: 0,
-          }}
-        />
-        {/* Radial glow overlay */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "radial-gradient(ellipse 80% 55% at 50% 45%, rgba(59,130,246,0.1) 0%, rgba(139,92,246,0.04) 45%, transparent 75%)",
-            zIndex: 1,
-          }}
-        />
-        {/* Bottom fade */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: "220px",
-            background: "linear-gradient(to bottom, transparent, var(--bg-primary))",
-            zIndex: 2,
-          }}
-        />
-
-        {/* Content */}
-        <div style={{ position: "relative", zIndex: 3, maxWidth: "1240px", width: "100%" }}>
-          {/* Eyebrow */}
+        <div style={{ position: "relative", zIndex: 1, maxWidth: "920px", width: "100%" }}>
           <div
-            className="hero-eyebrow"
+            className="hero-eyebrow badge"
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "7px",
-              padding: "5px 14px",
-              borderRadius: "100px",
-              background: "rgba(59,130,246,0.09)",
-              border: "1px solid rgba(59,130,246,0.22)",
+              background: "var(--primary-soft)",
+              borderColor: "color-mix(in srgb, var(--primary) 30%, transparent)",
+              color: "var(--primary)",
+              marginBottom: "28px",
               fontSize: "11.5px",
-              fontWeight: 700,
-              color: "#4f9eff",
-              letterSpacing: "0.06em",
-              textTransform: "uppercase",
-              marginBottom: "36px",
             }}
           >
             <Zap size={11} />
             AI-Powered Solana Security Auditing
           </div>
 
-          {/* H1 — max 3 lines, inline image in heading */}
           <h1
             className="hero-title"
             style={{
-              fontSize: "clamp(3rem, 6.5vw, 6.2rem)",
-              fontWeight: 900,
-              lineHeight: 1.02,
-              letterSpacing: "-0.055em",
-              marginBottom: "28px",
-              maxWidth: "100%",
+              fontSize: "clamp(2.6rem, 6vw, 5.4rem)",
+              fontWeight: 800,
+              lineHeight: 1.04,
+              letterSpacing: "-0.045em",
+              marginBottom: "24px",
             }}
           >
-            <span style={{ color: "#e8f4fd" }}>Audit Solana </span>
-            {/* Inline pill image */}
-            <span
-              style={{
-                display: "inline-block",
-                width: "clamp(56px, 6vw, 88px)",
-                height: "clamp(32px, 3.5vw, 52px)",
-                borderRadius: "100px",
-                backgroundImage:
-                  "url(https://picsum.photos/seed/circuit-dark/200/100)",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                filter: "grayscale(60%) brightness(0.75) contrast(1.2)",
-                verticalAlign: "middle",
-                margin: "0 6px -4px",
-                border: "1px solid rgba(99,179,255,0.18)",
-              }}
-            />
-            <span style={{ color: "#e8f4fd" }}>Contracts</span>
+            Audit Solana contracts
             <br />
-            <span
-              style={{
-                background:
-                  "linear-gradient(135deg, #4f9eff 0%, #9d7cff 52%, #2dd4bf 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              Before Exploit Day
-            </span>
+            <span style={{ color: "var(--primary)" }}>before exploit day</span>
           </h1>
 
-          {/* Sub */}
           <p
             className="hero-sub"
             style={{
-              fontSize: "clamp(15px, 1.7vw, 19px)",
-              color: "#6b8cad",
-              maxWidth: "520px",
-              margin: "0 auto 44px",
-              lineHeight: 1.7,
-              letterSpacing: "-0.01em",
+              fontSize: "clamp(15px, 1.7vw, 18px)",
+              color: "var(--muted)",
+              maxWidth: "560px",
+              margin: "0 auto 36px",
+              lineHeight: 1.65,
             }}
           >
             SolShield AI scans Anchor and Rust smart contracts for 7 critical
@@ -375,99 +237,125 @@ export default function LandingPage() {
             root cause, and secure fix — in plain English.
           </p>
 
-          {/* CTAs */}
           <div
             className="hero-ctas"
-            style={{
-              display: "flex",
-              gap: "13px",
-              justifyContent: "center",
-              flexWrap: "wrap",
-            }}
+            style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}
           >
-            <Link
-              href="/dashboard"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "14px 34px",
-                borderRadius: "100px",
-                background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-                color: "white",
-                fontWeight: 700,
-                fontSize: "15px",
-                textDecoration: "none",
-                letterSpacing: "-0.015em",
-                boxShadow:
-                  "0 0 48px rgba(59,130,246,0.28), 0 2px 0 rgba(255,255,255,0.12) inset",
-              }}
-            >
-              <Shield size={16} />
+            <Link href="/dashboard" className="btn-primary" style={{ padding: "13px 30px", fontSize: "15px" }}>
+              <ShieldCheck size={17} />
               Start Free Audit
             </Link>
-            <Link
-              href="/chat"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "14px 34px",
-                borderRadius: "100px",
-                background: "rgba(255,255,255,0.035)",
-                color: "#e8f4fd",
-                fontWeight: 600,
-                fontSize: "15px",
-                textDecoration: "none",
-                border: "1px solid rgba(99,179,255,0.15)",
-                letterSpacing: "-0.015em",
-              }}
-            >
-              <MessageSquare size={16} />
+            <Link href="/chat" className="btn-ghost" style={{ padding: "13px 30px", fontSize: "15px" }}>
+              <MessageSquare size={17} />
               Ask AI Assistant
             </Link>
           </div>
+        </div>
 
-          {/* Scroll hint */}
+        {/* Trace window mockup */}
+        <div
+          className="hero-trace card"
+          style={{
+            marginTop: "56px",
+            width: "100%",
+            maxWidth: "720px",
+            overflow: "hidden",
+            textAlign: "left",
+            boxShadow: "0 24px 60px rgba(0,0,0,0.25)",
+          }}
+        >
+          {/* Title bar */}
           <div
             style={{
-              marginTop: "72px",
               display: "flex",
-              justifyContent: "center",
+              alignItems: "center",
+              gap: "10px",
+              padding: "12px 16px",
+              borderBottom: "1px solid var(--border)",
+              background: "var(--panel)",
             }}
           >
+            <span style={{ display: "flex", gap: "6px" }}>
+              <span style={{ width: 11, height: 11, borderRadius: "50%", background: "var(--secondary)" }} />
+              <span style={{ width: 11, height: 11, borderRadius: "50%", background: "var(--primary)" }} />
+              <span style={{ width: 11, height: 11, borderRadius: "50%", background: "var(--sev-critical)" }} />
+            </span>
+            <code className="font-mono" style={{ fontSize: "12px", color: "var(--muted)" }}>
+              trace://solshield/scan · lending_program.rs
+            </code>
+          </div>
+
+          <div style={{ padding: "18px" }}>
+            <div className="section-label" style={{ marginBottom: "14px" }}>
+              Static analysis · 7 rules
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              {TRACE_ROWS.map((row) => {
+                const meta =
+                  row.status === "fail"
+                    ? { cls: "badge-critical", text: "VULNERABLE" }
+                    : row.status === "warn"
+                    ? { cls: "badge-medium", text: "REVIEW" }
+                    : { cls: "badge-low", text: "PASS" };
+                return (
+                  <div
+                    key={row.id}
+                    className="trace-row panel"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
+                      padding: "10px 14px",
+                    }}
+                  >
+                    <code className="font-mono" style={{ fontSize: "12px", color: "var(--primary)", width: "62px" }}>
+                      {row.id}
+                    </code>
+                    <code className="font-mono" style={{ fontSize: "12px", color: "var(--foreground)", flex: 1 }}>
+                      {row.label}()
+                    </code>
+                    <span className={`badge ${meta.cls}`} style={{ fontSize: "10px" }}>
+                      {meta.text}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            {/* progress */}
+            <div style={{ marginTop: "16px", height: "2px", background: "var(--border)", borderRadius: "2px" }}>
+              <div style={{ width: "100%", height: "100%", background: "var(--secondary)", borderRadius: "2px" }} />
+            </div>
             <div
-              style={{
-                width: 1,
-                height: 64,
-                background:
-                  "linear-gradient(to bottom, rgba(99,179,255,0.35), transparent)",
-                borderRadius: "1px",
-              }}
-            />
+              className="font-mono"
+              style={{ marginTop: "10px", fontSize: "11px", color: "var(--muted)", display: "flex", justifyContent: "space-between" }}
+            >
+              <span>scan complete</span>
+              <span>time 1.84s · 3 findings</span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ─────────────────── MARQUEE ─────────────────── */}
+      {/* ─────────── MARQUEE ─────────── */}
       <div
         style={{
-          padding: "18px 0",
-          borderTop: "1px solid rgba(99,179,255,0.055)",
-          borderBottom: "1px solid rgba(99,179,255,0.055)",
+          padding: "16px 0",
+          borderTop: "1px solid var(--border)",
+          borderBottom: "1px solid var(--border)",
           overflow: "hidden",
-          background: "rgba(0,0,0,0.18)",
+          background: "var(--surface)",
         }}
       >
         <div className="marquee-track">
           {[...VULN_RULES, ...VULN_RULES].map((rule, i) => (
             <span
               key={i}
+              className="font-mono"
               style={{
                 fontSize: "11.5px",
-                fontWeight: 700,
-                color: i % 3 === 0 ? "#4f9eff" : i % 3 === 1 ? "#9d7cff" : "#2dd4bf",
-                letterSpacing: "0.07em",
+                fontWeight: 600,
+                color: i % 2 === 0 ? "var(--primary)" : "var(--muted)",
+                letterSpacing: "0.04em",
                 textTransform: "uppercase",
                 whiteSpace: "nowrap",
                 flexShrink: 0,
@@ -479,499 +367,171 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* ─────────────────── BENTO GRID ─────────────────── */}
-      <section
-        id="features"
-        style={{ padding: "clamp(72px, 10vw, 136px) clamp(20px, 4vw, 52px)" }}
-      >
-        <div style={{ maxWidth: "1300px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "52px" }}>
-            <h2
-              style={{
-                fontSize: "clamp(1.9rem, 3.8vw, 3.4rem)",
-                fontWeight: 900,
-                letterSpacing: "-0.045em",
-                lineHeight: 1.08,
-                marginBottom: "14px",
-              }}
-            >
-              Everything in One Platform
+      {/* ─────────── BENTO ─────────── */}
+      <section id="features" style={{ padding: "clamp(72px, 10vw, 130px) clamp(20px, 4vw, 52px)" }}>
+        <div style={{ maxWidth: "1240px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "48px" }}>
+            <div className="section-label" style={{ marginBottom: "12px" }}>
+              The Platform
+            </div>
+            <h2 style={{ fontSize: "clamp(1.9rem, 3.6vw, 3.2rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.08, marginBottom: "12px" }}>
+              Everything in one workspace
             </h2>
-            <p
-              style={{ color: "#6b8cad", fontSize: "15.5px", maxWidth: "440px", margin: "0 auto" }}
-            >
+            <p style={{ color: "var(--muted)", fontSize: "15px", maxWidth: "460px", margin: "0 auto" }}>
               From static analysis to AI-generated remediation — all in under two seconds.
             </p>
           </div>
 
-          {/*
-            Bento math:  6 cols × 3 rows = 18 cells
-            Card A: col-span-4, row-span-2 → 8 cells
-            Card B: col-span-2, row-span-1 → 2 cells  (col 5-6, row 1)
-            Card C: col-span-2, row-span-1 → 2 cells  (col 5-6, row 2)
-            Card D: col-span-6, row-span-1 → 6 cells  (row 3)
-            Total: 18 ✓ — grid-auto-flow: dense applied.
-          */}
           <div
             ref={bentoRef}
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(6, 1fr)",
               gridAutoFlow: "dense",
-              gap: "15px",
+              gap: "14px",
             }}
           >
-            {/* Card A — Static Analysis (tall left) */}
-            <div
-              className="bento-item"
-              style={{
-                gridColumn: "span 4",
-                gridRow: "span 2",
-                borderRadius: "22px",
-                background: "rgba(255,255,255,0.025)",
-                border: "1px solid rgba(99,179,255,0.09)",
-                padding: "38px 40px",
-                position: "relative",
-                overflow: "hidden",
-                minHeight: "380px",
-              }}
-            >
-              {/* Background image */}
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  backgroundImage:
-                    "url(https://picsum.photos/seed/dark-code-screen/800/600)",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  filter: "grayscale(100%) brightness(0.07) contrast(1.6)",
-                }}
-              />
-              <div style={{ position: "relative", zIndex: 1 }}>
-                <div
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    padding: "5px 13px",
-                    borderRadius: "100px",
-                    background: "rgba(59,130,246,0.1)",
-                    border: "1px solid rgba(59,130,246,0.22)",
-                    fontSize: "10.5px",
-                    fontWeight: 700,
-                    color: "#4f9eff",
-                    letterSpacing: "0.07em",
-                    textTransform: "uppercase",
-                    marginBottom: "28px",
-                  }}
-                >
-                  <Code2 size={10} />
-                  Static Analysis Engine
-                </div>
-                <h3
-                  style={{
-                    fontSize: "clamp(1.5rem, 2.8vw, 2.6rem)",
-                    fontWeight: 900,
-                    letterSpacing: "-0.045em",
-                    lineHeight: 1.08,
-                    marginBottom: "18px",
-                  }}
-                >
-                  Regex AST analysis
-                  <br />
-                  across every Rust file
-                </h3>
-                <p
-                  style={{
-                    color: "#6b8cad",
-                    fontSize: "14.5px",
-                    lineHeight: 1.68,
-                    maxWidth: "420px",
-                  }}
-                >
-                  7 security rules check every function signature, CPI call,
-                  PDA seed derivation, and arithmetic operation across your
-                  entire Anchor program in parallel.
-                </p>
-
-                {/* Rule badges */}
-                <div
-                  style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: "8px",
-                    marginTop: "28px",
-                  }}
-                >
-                  {["Signer", "Ownership", "CPI", "PDA", "Overflow", "Authority", "unwrap()"].map(
-                    (tag, i) => (
-                      <span
-                        key={tag}
-                        style={{
-                          padding: "4px 11px",
-                          borderRadius: "100px",
-                          fontSize: "11px",
-                          fontWeight: 600,
-                          background: "rgba(255,255,255,0.04)",
-                          border: "1px solid rgba(99,179,255,0.1)",
-                          color: "#8aa3c8",
-                          letterSpacing: "0.02em",
-                        }}
-                      >
-                        {tag}
-                      </span>
-                    )
-                  )}
-                </div>
+            {/* Card A */}
+            <div className="bento-item card lift" style={{ gridColumn: "span 4", gridRow: "span 2", padding: "34px 36px", minHeight: "360px" }}>
+              <div className="badge" style={{ background: "var(--primary-soft)", borderColor: "color-mix(in srgb, var(--primary) 30%, transparent)", color: "var(--primary)", marginBottom: "24px" }}>
+                <Code2 size={11} />
+                Static Analysis Engine
+              </div>
+              <h3 style={{ fontSize: "clamp(1.5rem, 2.6vw, 2.4rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginBottom: "16px" }}>
+                Regex AST analysis across every Rust file
+              </h3>
+              <p style={{ color: "var(--muted)", fontSize: "14.5px", lineHeight: 1.65, maxWidth: "440px" }}>
+                7 security rules check every function signature, CPI call, PDA
+                seed derivation, and arithmetic operation across your entire
+                Anchor program in parallel.
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "26px" }}>
+                {["Signer", "Ownership", "CPI", "PDA", "Overflow", "Authority", "unwrap()"].map((tag) => (
+                  <span key={tag} className="badge">{tag}</span>
+                ))}
               </div>
             </div>
 
-            {/* Card B — AI Explanations */}
-            <div
-              className="bento-item"
-              style={{
-                gridColumn: "span 2",
-                gridRow: "span 1",
-                borderRadius: "22px",
-                background:
-                  "linear-gradient(140deg, rgba(139,92,246,0.09) 0%, rgba(59,130,246,0.05) 100%)",
-                border: "1px solid rgba(139,92,246,0.17)",
-                padding: "28px 30px",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-              }}
-            >
-              <div
-                style={{
-                  width: 42,
-                  height: 42,
-                  borderRadius: "12px",
-                  background: "rgba(139,92,246,0.13)",
-                  border: "1px solid rgba(139,92,246,0.28)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#9d7cff",
-                }}
-              >
+            {/* Card B */}
+            <div className="bento-item card lift" style={{ gridColumn: "span 2", gridRow: "span 1", padding: "28px 30px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div className="panel" style={{ width: 42, height: 42, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--secondary)" }}>
                 <Zap size={20} />
               </div>
               <div>
-                <h3
-                  style={{
-                    fontSize: "1.15rem",
-                    fontWeight: 800,
-                    letterSpacing: "-0.03em",
-                    marginBottom: "8px",
-                  }}
-                >
+                <h3 style={{ fontSize: "1.15rem", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "8px", marginTop: "20px" }}>
                   Gemini AI Explanations
                 </h3>
-                <p style={{ color: "#6b8cad", fontSize: "13px", lineHeight: 1.62 }}>
+                <p style={{ color: "var(--muted)", fontSize: "13px", lineHeight: 1.6 }}>
                   Every finding gets an on-demand exploit scenario, root cause
                   analysis, and secure Rust fix — powered by Gemini 2.5 Flash.
                 </p>
               </div>
             </div>
 
-            {/* Card C — Monaco Viewer */}
-            <div
-              className="bento-item"
-              style={{
-                gridColumn: "span 2",
-                gridRow: "span 1",
-                borderRadius: "22px",
-                background:
-                  "linear-gradient(140deg, rgba(45,212,191,0.07) 0%, rgba(6,182,212,0.04) 100%)",
-                border: "1px solid rgba(45,212,191,0.14)",
-                padding: "28px 30px",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-              }}
-            >
-              <div
-                style={{
-                  width: 42,
-                  height: 42,
-                  borderRadius: "12px",
-                  background: "rgba(45,212,191,0.1)",
-                  border: "1px solid rgba(45,212,191,0.24)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#2dd4bf",
-                }}
-              >
+            {/* Card C */}
+            <div className="bento-item card lift" style={{ gridColumn: "span 2", gridRow: "span 1", padding: "28px 30px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div className="panel" style={{ width: 42, height: 42, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
                 <Eye size={20} />
               </div>
               <div>
-                <h3
-                  style={{
-                    fontSize: "1.15rem",
-                    fontWeight: 800,
-                    letterSpacing: "-0.03em",
-                    marginBottom: "8px",
-                  }}
-                >
+                <h3 style={{ fontSize: "1.15rem", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "8px", marginTop: "20px" }}>
                   Monaco Code Viewer
                 </h3>
-                <p style={{ color: "#6b8cad", fontSize: "13px", lineHeight: 1.62 }}>
+                <p style={{ color: "var(--muted)", fontSize: "13px", lineHeight: 1.6 }}>
                   Interactive editor highlights vulnerable lines with inline
                   severity markers and jump-to-line navigation.
                 </p>
               </div>
             </div>
 
-            {/* Card D — GitHub Scanner (full width, image scale) */}
-            <div
-              className="bento-item scale-image"
-              style={{
-                gridColumn: "span 6",
-                gridRow: "span 1",
-                borderRadius: "22px",
-                background: "rgba(255,255,255,0.02)",
-                border: "1px solid rgba(16,185,129,0.1)",
-                padding: "34px 40px",
-                display: "flex",
-                alignItems: "center",
-                gap: "48px",
-                overflow: "hidden",
-                position: "relative",
-              }}
-            >
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    padding: "5px 13px",
-                    borderRadius: "100px",
-                    background: "rgba(16,185,129,0.09)",
-                    border: "1px solid rgba(16,185,129,0.2)",
-                    fontSize: "10.5px",
-                    fontWeight: 700,
-                    color: "#34d399",
-                    letterSpacing: "0.07em",
-                    textTransform: "uppercase",
-                    marginBottom: "16px",
-                  }}
-                >
-                  <GitBranch size={10} />
+            {/* Card D */}
+            <div className="bento-item card lift" style={{ gridColumn: "span 6", gridRow: "span 1", padding: "32px 36px", display: "flex", alignItems: "center", gap: "40px", flexWrap: "wrap" }}>
+              <div style={{ flex: 1, minWidth: "260px" }}>
+                <div className="badge" style={{ background: "color-mix(in srgb, var(--sev-low) 12%, transparent)", borderColor: "color-mix(in srgb, var(--sev-low) 30%, transparent)", color: "var(--sev-low)", marginBottom: "14px" }}>
+                  <GitBranch size={11} />
                   GitHub Repository Scanner
                 </div>
-                <h3
-                  style={{
-                    fontSize: "clamp(1.2rem, 2vw, 1.75rem)",
-                    fontWeight: 900,
-                    letterSpacing: "-0.04em",
-                    marginBottom: "12px",
-                    lineHeight: 1.15,
-                  }}
-                >
-                  Paste a GitHub URL.
-                  <br />
-                  Get a full security report.
+                <h3 style={{ fontSize: "clamp(1.2rem, 2vw, 1.7rem)", fontWeight: 800, letterSpacing: "-0.035em", marginBottom: "10px", lineHeight: 1.15 }}>
+                  Paste a GitHub URL. Get a full security report.
                 </h3>
-                <p
-                  style={{
-                    color: "#6b8cad",
-                    fontSize: "14px",
-                    lineHeight: 1.68,
-                    maxWidth: "500px",
-                  }}
-                >
+                <p style={{ color: "var(--muted)", fontSize: "14px", lineHeight: 1.65, maxWidth: "520px" }}>
                   SolShield clones the repo, finds every{" "}
-                  <code
-                    style={{
-                      fontFamily: "JetBrains Mono, monospace",
-                      fontSize: "12px",
-                      color: "#4f9eff",
-                      background: "rgba(59,130,246,0.08)",
-                      padding: "1px 6px",
-                      borderRadius: "4px",
-                    }}
-                  >
+                  <code className="font-mono" style={{ fontSize: "12px", color: "var(--primary)", background: "var(--primary-soft)", padding: "1px 6px", borderRadius: "4px" }}>
                     .rs
                   </code>{" "}
-                  file, runs the full detection suite, and returns findings —
-                  no authentication required.
+                  file, runs the full detection suite, and returns findings — no
+                  authentication required.
                 </p>
               </div>
-              <div
-                style={{
-                  width: "clamp(180px, 22%, 300px)",
-                  height: "130px",
-                  borderRadius: "14px",
-                  backgroundImage:
-                    "url(https://picsum.photos/seed/server-rack-dark/600/300)",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  filter:
-                    "grayscale(80%) brightness(0.55) contrast(1.25) saturate(0.4)",
-                  flexShrink: 0,
-                  border: "1px solid rgba(99,179,255,0.09)",
-                }}
-              />
+              <div className="panel" style={{ flex: "0 0 auto", padding: "18px 22px", display: "flex", flexDirection: "column", gap: "10px", minWidth: "200px" }}>
+                {["clone repository", "discover .rs files", "run 7 rules", "compile report"].map((step, i) => (
+                  <div key={step} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <CheckCircle2 size={14} style={{ color: "var(--sev-low)" }} />
+                    <code className="font-mono" style={{ fontSize: "12px", color: i === 3 ? "var(--foreground)" : "var(--muted)" }}>
+                      {step}
+                    </code>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─────────────────── SCRUBBING TEXT REVEAL ─────────────────── */}
+      {/* ─────────── SCRUB REVEAL ─────────── */}
       <section
         id="how"
         ref={scrubRef}
         style={{
-          padding: "clamp(72px, 10vw, 136px) clamp(20px, 4vw, 52px)",
-          maxWidth: "1300px",
+          padding: "clamp(72px, 10vw, 130px) clamp(20px, 4vw, 52px)",
+          maxWidth: "1240px",
           margin: "0 auto",
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
-          gap: "clamp(40px, 7vw, 96px)",
+          gap: "clamp(40px, 7vw, 90px)",
           alignItems: "start",
         }}
+        className="scrub-grid"
       >
-        {/* Left — sticky title */}
-        <div style={{ position: "sticky", top: "38vh", alignSelf: "start" }}>
-          <p
-            style={{
-              fontSize: "10.5px",
-              fontWeight: 700,
-              color: "#4f9eff",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              marginBottom: "14px",
-            }}
-          >
+        <div style={{ position: "sticky", top: "32vh", alignSelf: "start" }}>
+          <div className="section-label" style={{ marginBottom: "14px" }}>
             The Process
-          </p>
-          <h2
-            style={{
-              fontSize: "clamp(2rem, 3.4vw, 3.1rem)",
-              fontWeight: 900,
-              letterSpacing: "-0.048em",
-              lineHeight: 1.09,
-              marginBottom: "22px",
-            }}
-          >
-            Why developers
-            <br />
-            trust SolShield
+          </div>
+          <h2 style={{ fontSize: "clamp(2rem, 3.2vw, 3rem)", fontWeight: 800, letterSpacing: "-0.045em", lineHeight: 1.1, marginBottom: "20px" }}>
+            Why developers trust SolShield
           </h2>
-          <p style={{ color: "#6b8cad", lineHeight: 1.7, fontSize: "14.5px", maxWidth: "340px" }}>
+          <p style={{ color: "var(--muted)", lineHeight: 1.7, fontSize: "14.5px", maxWidth: "340px" }}>
             Built for hackathon velocity and mainnet-grade security assurance.
           </p>
-
-          <Link
-            href="/dashboard"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "6px",
-              marginTop: "32px",
-              fontSize: "13px",
-              fontWeight: 700,
-              color: "#4f9eff",
-              textDecoration: "none",
-              letterSpacing: "-0.01em",
-            }}
-          >
+          <Link href="/dashboard" style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginTop: "28px", fontSize: "13px", fontWeight: 700, color: "var(--primary)", textDecoration: "none" }}>
             Start auditing <ArrowUpRight size={14} />
           </Link>
         </div>
 
-        {/* Right — scrub paragraph + feature rows */}
         <div>
-          {/* Scrubbing paragraph */}
-          <p
-            style={{
-              fontSize: "clamp(1.35rem, 2.2vw, 1.9rem)",
-              fontWeight: 700,
-              lineHeight: 1.52,
-              letterSpacing: "-0.03em",
-            }}
-          >
+          <p style={{ fontSize: "clamp(1.3rem, 2.1vw, 1.8rem)", fontWeight: 700, lineHeight: 1.5, letterSpacing: "-0.025em" }}>
             {SCRUB_SENTENCE.split(" ").map((word, i) => (
-              <span key={i} className="scrub-word" style={{ opacity: 0.06 }}>
+              <span key={i} className="scrub-word" style={{ opacity: 0.12 }}>
                 {word}{" "}
               </span>
             ))}
           </p>
 
-          {/* Feature rows */}
-          <div
-            className="scrub-feature-list"
-            style={{
-              marginTop: "48px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "14px",
-            }}
-          >
+          <div className="scrub-feature-list" style={{ marginTop: "44px", display: "flex", flexDirection: "column", gap: "12px" }}>
             {[
-              {
-                icon: <Lock size={15} />,
-                title: "Upload ZIP or paste a GitHub URL",
-                desc: "No account required for quick audits. Authenticated users get scan history.",
-              },
-              {
-                icon: <Code2 size={15} />,
-                title: "Parallel regex-based analysis",
-                desc: "All 7 rules run simultaneously across every .rs file — scan completes in under 2 seconds.",
-              },
-              {
-                icon: <Zap size={15} />,
-                title: "On-demand AI enrichment",
-                desc: "Click any finding to fetch a Gemini explanation, exploit scenario, and fix — no wait during the initial scan.",
-              },
+              { icon: <Lock size={15} />, title: "Upload ZIP or paste a GitHub URL", desc: "No account required for quick audits. Authenticated users get scan history." },
+              { icon: <Code2 size={15} />, title: "Parallel regex-based analysis", desc: "All 7 rules run simultaneously across every .rs file — scan completes in under 2 seconds." },
+              { icon: <Zap size={15} />, title: "On-demand AI enrichment", desc: "Click any finding to fetch a Gemini explanation, exploit scenario, and fix." },
             ].map((item, i) => (
-              <div
-                key={i}
-                className="scrub-feature bento-item"
-                style={{
-                  display: "flex",
-                  gap: "15px",
-                  alignItems: "flex-start",
-                  padding: "20px 22px",
-                  borderRadius: "16px",
-                  background: "rgba(255,255,255,0.022)",
-                  border: "1px solid rgba(99,179,255,0.07)",
-                }}
-              >
-                <div
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: "10px",
-                    background: "rgba(59,130,246,0.09)",
-                    border: "1px solid rgba(59,130,246,0.18)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#4f9eff",
-                    flexShrink: 0,
-                  }}
-                >
+              <div key={i} className="scrub-feature card" style={{ display: "flex", gap: "15px", alignItems: "flex-start", padding: "18px 20px" }}>
+                <div className="panel" style={{ width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)", flexShrink: 0 }}>
                   {item.icon}
                 </div>
                 <div>
-                  <h4
-                    style={{
-                      fontWeight: 700,
-                      fontSize: "14px",
-                      letterSpacing: "-0.02em",
-                      marginBottom: "5px",
-                    }}
-                  >
+                  <h4 style={{ fontWeight: 700, fontSize: "14px", letterSpacing: "-0.02em", marginBottom: "5px" }}>
                     {item.title}
                   </h4>
-                  <p style={{ color: "#6b8cad", fontSize: "13px", lineHeight: 1.6 }}>
-                    {item.desc}
-                  </p>
+                  <p style={{ color: "var(--muted)", fontSize: "13px", lineHeight: 1.6 }}>{item.desc}</p>
                 </div>
               </div>
             ))}
@@ -979,226 +539,85 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─────────────────── STATS ─────────────────── */}
+      {/* ─────────── STATS ─────────── */}
       <section
         ref={statsRef}
         style={{
-          padding: "clamp(52px, 8vw, 100px) clamp(20px, 4vw, 52px)",
-          borderTop: "1px solid rgba(99,179,255,0.055)",
-          borderBottom: "1px solid rgba(99,179,255,0.055)",
-          background: "rgba(0,0,0,0.14)",
+          padding: "clamp(52px, 8vw, 96px) clamp(20px, 4vw, 52px)",
+          borderTop: "1px solid var(--border)",
+          borderBottom: "1px solid var(--border)",
+          background: "var(--surface)",
         }}
       >
-        <div
-          style={{
-            maxWidth: "1300px",
-            margin: "0 auto",
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "40px",
-            textAlign: "center",
-          }}
-        >
+        <div style={{ maxWidth: "1100px", margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
           {[
-            { value: "7+",    label: "Vulnerability Rules",     sub: "SOL-001 through SOL-007" },
-            { value: "< 2s",  label: "Average Scan Speed",      sub: "Across full Anchor projects" },
-            { value: "100%",  label: "AI-Powered Analysis",     sub: "Gemini 2.5 Flash on every finding" },
+            { value: "7", label: "Vulnerability Rules", note: "SOL-001 → SOL-007" },
+            { value: "< 2s", label: "Average Scan Speed", note: "full Anchor projects" },
+            { value: "AI", label: "Powered Analysis", note: "Gemini 2.5 Flash" },
           ].map((stat) => (
             <div key={stat.label} className="stat-block">
-              <div
-                style={{
-                  fontSize: "clamp(2.4rem, 4.8vw, 5rem)",
-                  fontWeight: 900,
-                  letterSpacing: "-0.06em",
-                  lineHeight: 1,
-                  marginBottom: "10px",
-                  background: "linear-gradient(135deg, #4f9eff, #9d7cff)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                {stat.value}
+              <div className="stat-value">{stat.value}</div>
+              <div className="stat-label">{stat.label}</div>
+              <div className="font-mono" style={{ fontSize: "11px", color: "var(--muted)", marginTop: "8px" }}>
+                {stat.note}
               </div>
-              <p
-                style={{
-                  fontWeight: 700,
-                  fontSize: "14px",
-                  letterSpacing: "-0.01em",
-                  marginBottom: "5px",
-                }}
-              >
-                {stat.label}
-              </p>
-              <p style={{ color: "#4a6280", fontSize: "12px" }}>{stat.sub}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ─────────────────── CTA ─────────────────── */}
-      <section
-        style={{
-          padding: "clamp(88px, 14vw, 168px) clamp(20px, 4vw, 52px)",
-          textAlign: "center",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "radial-gradient(ellipse 55% 45% at 50% 52%, rgba(59,130,246,0.07) 0%, rgba(139,92,246,0.04) 40%, transparent 75%)",
-          }}
-        />
-        <div
-          className="cta-content"
-          style={{
-            position: "relative",
-            zIndex: 1,
-            maxWidth: "820px",
-            margin: "0 auto",
-          }}
-        >
-          <h2
-            style={{
-              fontSize: "clamp(2.6rem, 5.8vw, 5.8rem)",
-              fontWeight: 900,
-              letterSpacing: "-0.055em",
-              lineHeight: 1.02,
-              marginBottom: "24px",
-            }}
-          >
-            <span style={{ color: "#e8f4fd" }}>Deploy With</span>
-            <br />
-            <span
-              style={{
-                background:
-                  "linear-gradient(135deg, #4f9eff 0%, #9d7cff 50%, #2dd4bf 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              Full Confidence
-            </span>
+      {/* ─────────── CTA ─────────── */}
+      <section style={{ padding: "clamp(80px, 13vw, 150px) clamp(20px, 4vw, 52px)", textAlign: "center" }}>
+        <div className="cta-content" style={{ maxWidth: "760px", margin: "0 auto" }}>
+          <span style={{ display: "inline-flex" }}>
+            <LogoMark size={48} />
+          </span>
+          <h2 style={{ fontSize: "clamp(2.4rem, 5.2vw, 4.6rem)", fontWeight: 800, letterSpacing: "-0.045em", lineHeight: 1.05, margin: "24px 0" }}>
+            Deploy with{" "}
+            <span style={{ color: "var(--primary)" }}>full confidence</span>
           </h2>
-          <p
-            style={{
-              color: "#6b8cad",
-              fontSize: "clamp(15px, 1.6vw, 18px)",
-              marginBottom: "46px",
-              lineHeight: 1.7,
-              maxWidth: "560px",
-              margin: "0 auto 46px",
-            }}
-          >
-            Upload your Anchor project ZIP or paste a GitHub URL. Get a
-            complete AI security report in seconds. No login required.
+          <p style={{ color: "var(--muted)", fontSize: "clamp(15px, 1.6vw, 18px)", marginBottom: "40px", lineHeight: 1.7, maxWidth: "540px", marginInline: "auto" }}>
+            Upload your Anchor project ZIP or paste a GitHub URL. Get a complete
+            AI security report in seconds. No login required.
           </p>
-          <div
-            style={{
-              display: "flex",
-              gap: "13px",
-              justifyContent: "center",
-              flexWrap: "wrap",
-            }}
-          >
-            <Link
-              href="/dashboard"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "9px",
-                padding: "16px 44px",
-                borderRadius: "100px",
-                background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-                color: "white",
-                fontWeight: 700,
-                fontSize: "16px",
-                textDecoration: "none",
-                letterSpacing: "-0.015em",
-                boxShadow:
-                  "0 0 64px rgba(59,130,246,0.22), 0 2px 0 rgba(255,255,255,0.1) inset",
-              }}
-            >
+          <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
+            <Link href="/dashboard" className="btn-primary" style={{ padding: "15px 40px", fontSize: "16px" }}>
               <Zap size={18} />
               Start Scanning Free
             </Link>
-            <Link
-              href="/chat"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "9px",
-                padding: "16px 44px",
-                borderRadius: "100px",
-                background: "transparent",
-                color: "#e8f4fd",
-                fontWeight: 600,
-                fontSize: "16px",
-                textDecoration: "none",
-                border: "1px solid rgba(99,179,255,0.18)",
-                letterSpacing: "-0.015em",
-              }}
-            >
-              <Terminal size={18} />
+            <Link href="/chat" className="btn-ghost" style={{ padding: "15px 40px", fontSize: "16px" }}>
+              <MessageSquare size={18} />
               Open AI Chat
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ─────────────────── FOOTER ─────────────────── */}
+      {/* ─────────── FOOTER ─────────── */}
       <footer
         style={{
-          borderTop: "1px solid rgba(99,179,255,0.055)",
+          borderTop: "1px solid var(--border)",
           padding: "28px clamp(20px, 4vw, 52px)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           flexWrap: "wrap",
           gap: "14px",
-          maxWidth: "1300px",
+          maxWidth: "1240px",
           margin: "0 auto",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <Shield size={15} color="#3b82f6" />
-          <span
-            style={{
-              fontWeight: 800,
-              fontSize: "13.5px",
-              color: "#8aa3c8",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            SolShield AI
-          </span>
-        </div>
-        <p style={{ fontSize: "12px", color: "#3a4f66" }}>
+        <Logo size={22} fontSize={14} />
+        <p style={{ fontSize: "12px", color: "var(--muted)" }}>
           AI-Powered Solana Smart Contract Security Auditing
         </p>
-        <div
-          style={{
-            display: "flex",
-            gap: "20px",
-            fontSize: "12px",
-            color: "#4a6280",
-          }}
-        >
+        <div style={{ display: "flex", gap: "20px", fontSize: "12px", color: "var(--muted)" }}>
           {[
             { label: "Dashboard", href: "/dashboard" },
             { label: "AI Chat", href: "/chat" },
+            { label: "Brand Kit", href: "/brandkit" },
           ].map(({ label, href }) => (
-            <Link
-              key={label}
-              href={href}
-              className="nav-link"
-              style={{ color: "inherit", textDecoration: "none" }}
-            >
+            <Link key={label} href={href} className="nav-link" style={{ color: "inherit", textDecoration: "none" }}>
               {label}
             </Link>
           ))}

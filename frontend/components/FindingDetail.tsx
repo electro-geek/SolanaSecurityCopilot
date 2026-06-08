@@ -20,11 +20,11 @@ interface Props {
   onEnrich?: (enrichedFinding: Finding) => void;
 }
 
-const severityConfig = {
-  CRITICAL: { color: "#ef4444", bg: "rgba(239,68,68,0.08)", icon: <ShieldAlert size={16} /> },
-  HIGH: { color: "#f97316", bg: "rgba(249,115,22,0.08)", icon: <AlertTriangle size={16} /> },
-  MEDIUM: { color: "#eab308", bg: "rgba(234,179,8,0.08)", icon: <AlertTriangle size={16} /> },
-  LOW: { color: "#22c55e", bg: "rgba(34,197,94,0.08)", icon: <Info size={16} /> },
+const severityMeta = {
+  CRITICAL: { cls: "badge-critical", icon: <ShieldAlert size={14} /> },
+  HIGH: { cls: "badge-high", icon: <AlertTriangle size={14} /> },
+  MEDIUM: { cls: "badge-medium", icon: <AlertTriangle size={14} /> },
+  LOW: { cls: "badge-low", icon: <Info size={14} /> },
 };
 
 export default function FindingDetail({ finding, onEnrich }: Props) {
@@ -33,7 +33,6 @@ export default function FindingDetail({ finding, onEnrich }: Props) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Reset state when finding changes
   useEffect(() => {
     setIsAnalyzing(false);
     setError(null);
@@ -49,10 +48,10 @@ export default function FindingDetail({ finding, onEnrich }: Props) {
           alignItems: "center",
           justifyContent: "center",
           gap: "16px",
-          color: "#4a6280",
+          color: "var(--muted)",
         }}
       >
-        <AlertTriangle size={40} color="#4a6280" />
+        <AlertTriangle size={40} style={{ color: "var(--muted)" }} />
         <p style={{ fontSize: "14px" }}>Select a finding to view details</p>
       </div>
     );
@@ -73,7 +72,7 @@ export default function FindingDetail({ finding, onEnrich }: Props) {
     }
   };
 
-  const cfg = severityConfig[finding.severity] || severityConfig.LOW;
+  const meta = severityMeta[finding.severity] || severityMeta.LOW;
 
   return (
     <AnimatePresence mode="wait">
@@ -87,40 +86,39 @@ export default function FindingDetail({ finding, onEnrich }: Props) {
       >
         {/* Header */}
         <div style={{ marginBottom: "20px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                padding: "4px 12px",
-                borderRadius: "20px",
-                fontSize: "12px",
-                fontWeight: 700,
-                background: cfg.bg,
-                color: cfg.color,
-                border: `1px solid ${cfg.color}30`,
-              }}
-            >
-              {cfg.icon}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              marginBottom: "12px",
+            }}
+          >
+            <span className={`badge ${meta.cls}`}>
+              {meta.icon}
               {finding.severity}
             </span>
-            <code style={{ fontSize: "12px", color: "#4a6280", fontFamily: "JetBrains Mono, monospace" }}>
+            <code
+              className="font-mono"
+              style={{ fontSize: "12px", color: "var(--muted)" }}
+            >
               {finding.rule_id}
             </code>
           </div>
-          <h2 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px" }}>{finding.title}</h2>
+          <h2 style={{ fontSize: "18px", fontWeight: 800, marginBottom: "8px" }}>
+            {finding.title}
+          </h2>
           <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: "8px",
               fontSize: "12px",
-              color: "#4a6280",
+              color: "var(--muted)",
             }}
           >
             <Code2 size={13} />
-            <code style={{ fontFamily: "JetBrains Mono, monospace" }}>
+            <code className="font-mono">
               {finding.file}:{finding.line}
             </code>
           </div>
@@ -128,14 +126,12 @@ export default function FindingDetail({ finding, onEnrich }: Props) {
 
         {/* Description */}
         <div
+          className="panel"
           style={{
             padding: "16px",
-            borderRadius: "10px",
-            background: "rgba(255,255,255,0.02)",
-            border: "1px solid rgba(99,179,255,0.08)",
             marginBottom: "16px",
             fontSize: "13px",
-            color: "#8aa3c8",
+            color: "var(--muted)",
             lineHeight: 1.6,
           }}
         >
@@ -143,13 +139,15 @@ export default function FindingDetail({ finding, onEnrich }: Props) {
         </div>
 
         {/* AI Analysis Button or Content */}
-        {(!finding.ai_explanation || finding.ai_explanation.includes("Ensure your GEMINI_API_KEY") || finding.ai_explanation.includes("AI analysis is currently unavailable")) ? (
+        {!finding.ai_explanation ||
+        finding.ai_explanation.includes("Ensure your GEMINI_API_KEY") ||
+        finding.ai_explanation.includes("AI analysis is currently unavailable") ? (
           <div
             style={{
               padding: "32px 16px",
-              borderRadius: "10px",
-              background: "rgba(59, 130, 246, 0.04)",
-              border: "1px dashed rgba(59, 130, 246, 0.2)",
+              borderRadius: "8px",
+              background: "var(--primary-soft)",
+              border: "1px dashed var(--primary)",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -158,30 +156,27 @@ export default function FindingDetail({ finding, onEnrich }: Props) {
             }}
           >
             <div style={{ textAlign: "center" }}>
-              <h3 style={{ fontSize: "14px", fontWeight: 700, color: "#63b3ff", marginBottom: "4px" }}>
+              <h3
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 800,
+                  color: "var(--primary)",
+                  marginBottom: "4px",
+                }}
+              >
                 Deep Security Analysis
               </h3>
-              <p style={{ fontSize: "12px", color: "#4a6280" }}>
-                Use SolShield AI to generate an exploit scenario and remediation steps.
+              <p style={{ fontSize: "12px", color: "var(--muted)" }}>
+                Use SolShield AI to generate an exploit scenario and remediation
+                steps.
               </p>
             </div>
-            
+
             <button
               onClick={handleRunAI}
               disabled={isAnalyzing}
-              className={isAnalyzing ? "" : "btn-primary"}
-              style={{
-                padding: "10px 24px",
-                fontSize: "13px",
-                borderRadius: "8px",
-                cursor: isAnalyzing ? "wait" : "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                background: isAnalyzing ? "rgba(255,255,255,0.05)" : undefined,
-                border: isAnalyzing ? "1px solid rgba(255,255,255,0.1)" : undefined,
-                color: isAnalyzing ? "#4a6280" : undefined,
-              }}
+              className={isAnalyzing ? "btn-ghost" : "btn-primary"}
+              style={{ padding: "10px 24px", fontSize: "13px" }}
             >
               {isAnalyzing ? (
                 <>
@@ -196,32 +191,32 @@ export default function FindingDetail({ finding, onEnrich }: Props) {
               )}
             </button>
             {error && (
-              <p style={{ fontSize: "11px", color: "#ef4444", marginTop: "8px" }}>{error}</p>
+              <p style={{ fontSize: "11px", color: "var(--sev-critical)", marginTop: "8px" }}>
+                {error}
+              </p>
             )}
           </div>
         ) : (
           <div
+            className="panel"
             style={{
               padding: "16px",
-              borderRadius: "10px",
-              background: "rgba(59, 130, 246, 0.06)",
-              border: "1px solid rgba(59, 130, 246, 0.15)",
               marginBottom: "12px",
+              borderColor: "var(--primary)",
             }}
           >
             <div
+              className="section-label"
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: "8px",
                 marginBottom: "12px",
-                fontSize: "12px",
-                fontWeight: 700,
-                color: "#63b3ff",
+                color: "var(--primary)",
               }}
             >
               <Lightbulb size={14} />
-              AI ANALYSIS
+              AI Analysis
             </div>
             <div className="markdown-content" style={{ fontSize: "13px" }}>
               <ReactMarkdown>{finding.ai_explanation}</ReactMarkdown>
@@ -233,32 +228,30 @@ export default function FindingDetail({ finding, onEnrich }: Props) {
         {finding.exploit_scenario && (
           <div
             style={{
-              borderRadius: "10px",
-              border: "1px solid rgba(239, 68, 68, 0.15)",
+              borderRadius: "8px",
+              border: "1px solid color-mix(in srgb, var(--sev-critical) 30%, transparent)",
               marginBottom: "12px",
               overflow: "hidden",
             }}
           >
             <button
               onClick={() => setShowExploit(!showExploit)}
+              className="section-label"
               style={{
                 width: "100%",
                 padding: "12px 16px",
-                background: "rgba(239, 68, 68, 0.06)",
+                background: "color-mix(in srgb, var(--sev-critical) 8%, transparent)",
                 border: "none",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                color: "#ef4444",
-                fontSize: "12px",
-                fontWeight: 700,
-                fontFamily: "Inter, sans-serif",
+                color: "var(--sev-critical)",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <Bug size={14} />
-                EXPLOIT SCENARIO
+                Exploit Scenario
               </div>
               {showExploit ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
@@ -286,31 +279,29 @@ export default function FindingDetail({ finding, onEnrich }: Props) {
         {finding.remediation && (
           <div
             style={{
-              borderRadius: "10px",
-              border: "1px solid rgba(34, 197, 94, 0.15)",
+              borderRadius: "8px",
+              border: "1px solid color-mix(in srgb, var(--sev-low) 30%, transparent)",
               overflow: "hidden",
             }}
           >
             <button
               onClick={() => setShowRemediation(!showRemediation)}
+              className="section-label"
               style={{
                 width: "100%",
                 padding: "12px 16px",
-                background: "rgba(34, 197, 94, 0.06)",
+                background: "color-mix(in srgb, var(--sev-low) 8%, transparent)",
                 border: "none",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                color: "#22c55e",
-                fontSize: "12px",
-                fontWeight: 700,
-                fontFamily: "Inter, sans-serif",
+                color: "var(--sev-low)",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <Code2 size={14} />
-                REMEDIATION
+                Remediation
               </div>
               {showRemediation ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>

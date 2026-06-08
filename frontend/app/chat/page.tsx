@@ -1,17 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Shield,
-  Send,
-  Sparkles,
-  User,
-  Code2,
-  Trash2,
-  Loader2,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { Send, Sparkles, User, Code2, Trash2, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { LogoMark } from "@/components/Logo";
 import ReactMarkdown from "react-markdown";
 import { streamChat } from "@/lib/api";
 
@@ -66,7 +59,6 @@ export default function ChatPage() {
       content: text,
       timestamp: new Date(),
     };
-
     const assistantMsg: Message = {
       id: (Date.now() + 1).toString(),
       role: "assistant",
@@ -86,7 +78,10 @@ export default function ChatPage() {
         );
       }
     } catch (err: any) {
-      assistantMsg.content = `Error: ${err.message || "Failed to get AI response. Make sure the backend is running and GEMINI_API_KEY is set."}`;
+      assistantMsg.content = `Error: ${
+        err.message ||
+        "Failed to get AI response. Make sure the backend is running and GEMINI_API_KEY is set."
+      }`;
       setMessages((prev) =>
         prev.map((m) => (m.id === assistantMsg.id ? { ...assistantMsg } : m))
       );
@@ -114,45 +109,71 @@ export default function ChatPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", position: "relative", zIndex: 1 }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        position: "relative",
+        zIndex: 1,
+      }}
+    >
       <Navbar />
 
-      <main style={{ flex: 1, display: "flex", maxWidth: "1100px", margin: "0 auto", width: "100%", padding: "24px", gap: "20px" }}>
+      <main
+        style={{
+          flex: 1,
+          display: "flex",
+          maxWidth: "1100px",
+          margin: "0 auto",
+          width: "100%",
+          padding: "24px",
+          gap: "20px",
+        }}
+      >
         {/* Sidebar */}
-        <div style={{ width: "260px", flexShrink: 0 }}>
-          {/* About */}
-          <div className="glass-card" style={{ padding: "20px", marginBottom: "16px" }}>
+        <div style={{ width: "270px", flexShrink: 0 }}>
+          <div className="card" style={{ padding: "20px", marginBottom: "16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
               <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: "10px",
-                  background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
+                className="panel"
+                style={{ width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center" }}
               >
-                <Shield size={18} color="white" />
+                <LogoMark size={22} />
               </div>
               <div>
                 <div style={{ fontSize: "14px", fontWeight: 700 }}>SolShield AI</div>
-                <div style={{ fontSize: "11px", color: "#22c55e", display: "flex", alignItems: "center", gap: "4px" }}>
-                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", display: "inline-block" }} />
+                <div
+                  style={{
+                    fontSize: "11px",
+                    color: "var(--sev-low)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px",
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: "50%",
+                      background: "var(--sev-low)",
+                      display: "inline-block",
+                    }}
+                  />
                   Online
                 </div>
               </div>
             </div>
-            <p style={{ fontSize: "12px", color: "#8aa3c8", lineHeight: 1.6 }}>
-              Expert AI assistant specialized in Solana smart contract security, Anchor framework, and Rust security patterns.
+            <p style={{ fontSize: "12px", color: "var(--muted)", lineHeight: 1.6 }}>
+              Expert AI assistant specialized in Solana smart contract security,
+              Anchor framework, and Rust security patterns.
             </p>
           </div>
 
-          {/* Suggested Questions */}
-          <div className="glass-card" style={{ padding: "16px", marginBottom: "16px" }}>
-            <div style={{ fontSize: "11px", fontWeight: 700, color: "#4a6280", letterSpacing: "0.08em", marginBottom: "10px" }}>
-              SUGGESTED QUESTIONS
+          <div className="card" style={{ padding: "16px", marginBottom: "16px" }}>
+            <div className="section-label" style={{ marginBottom: "10px" }}>
+              Suggested Questions
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
               {SUGGESTED_QUESTIONS.map((q) => (
@@ -161,25 +182,25 @@ export default function ChatPage() {
                   onClick={() => sendMessage(q)}
                   disabled={isStreaming}
                   style={{
-                    padding: "8px 10px",
-                    background: "rgba(59,130,246,0.06)",
-                    border: "1px solid rgba(59,130,246,0.12)",
+                    padding: "9px 11px",
+                    background: "var(--panel)",
+                    border: "1px solid var(--border)",
                     borderRadius: "8px",
-                    color: "#8aa3c8",
+                    color: "var(--muted)",
                     fontSize: "12px",
                     cursor: isStreaming ? "not-allowed" : "pointer",
                     textAlign: "left",
-                    fontFamily: "Inter, sans-serif",
+                    fontFamily: "inherit",
                     lineHeight: 1.4,
                     transition: "all 0.2s",
                   }}
                   onMouseEnter={(e) => {
-                    (e.target as HTMLElement).style.background = "rgba(59,130,246,0.12)";
-                    (e.target as HTMLElement).style.color = "#63b3ff";
+                    (e.currentTarget as HTMLElement).style.borderColor = "var(--primary)";
+                    (e.currentTarget as HTMLElement).style.color = "var(--foreground)";
                   }}
                   onMouseLeave={(e) => {
-                    (e.target as HTMLElement).style.background = "rgba(59,130,246,0.06)";
-                    (e.target as HTMLElement).style.color = "#8aa3c8";
+                    (e.currentTarget as HTMLElement).style.borderColor = "var(--border)";
+                    (e.currentTarget as HTMLElement).style.color = "var(--muted)";
                   }}
                 >
                   {q}
@@ -188,42 +209,38 @@ export default function ChatPage() {
             </div>
           </div>
 
-          {/* Code Context */}
-          <div className="glass-card" style={{ padding: "16px" }}>
+          <div className="card" style={{ padding: "16px" }}>
             <button
               onClick={() => setShowContext(!showContext)}
+              className="section-label"
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: "8px",
                 background: "none",
                 border: "none",
-                color: "#8aa3c8",
                 cursor: "pointer",
-                fontSize: "11px",
-                fontWeight: 700,
-                fontFamily: "Inter, sans-serif",
-                letterSpacing: "0.08em",
+                fontFamily: "inherit",
                 marginBottom: showContext ? "10px" : 0,
               }}
             >
-              <Code2 size={13} color="#63b3ff" />
-              ADD CODE CONTEXT
+              <Code2 size={13} style={{ color: "var(--primary)" }} />
+              Add Code Context
             </button>
             {showContext && (
               <textarea
                 value={context}
                 onChange={(e) => setContext(e.target.value)}
                 placeholder="Paste Rust code here for context..."
+                className="font-mono"
                 style={{
                   width: "100%",
                   height: "120px",
-                  background: "rgba(0,0,0,0.3)",
-                  border: "1px solid rgba(99,179,255,0.1)",
+                  background: "var(--panel)",
+                  border: "1px solid var(--border)",
                   borderRadius: "8px",
-                  color: "#e8f4fd",
+                  color: "var(--foreground)",
                   fontSize: "11px",
-                  fontFamily: "JetBrains Mono, monospace",
                   padding: "8px",
                   resize: "vertical",
                   outline: "none",
@@ -234,12 +251,11 @@ export default function ChatPage() {
         </div>
 
         {/* Chat area */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column" }} className="glass-card">
-          {/* Chat Header */}
+        <div className="card" style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           <div
             style={{
               padding: "16px 20px",
-              borderBottom: "1px solid rgba(99,179,255,0.08)",
+              borderBottom: "1px solid var(--border)",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
@@ -247,32 +263,25 @@ export default function ChatPage() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <Sparkles size={16} color="#a78bfa" />
+              <Sparkles size={16} style={{ color: "var(--secondary)" }} />
               <span style={{ fontSize: "14px", fontWeight: 700 }}>Security Chat</span>
             </div>
-            <button
-              onClick={clearChat}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                padding: "6px 12px",
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(99,179,255,0.08)",
-                borderRadius: "8px",
-                color: "#4a6280",
-                cursor: "pointer",
-                fontSize: "12px",
-                fontFamily: "Inter, sans-serif",
-              }}
-            >
+            <button onClick={clearChat} className="btn-ghost" style={{ padding: "6px 12px", fontSize: "12px" }}>
               <Trash2 size={12} />
               Clear
             </button>
           </div>
 
-          {/* Messages */}
-          <div style={{ flex: 1, overflowY: "auto", padding: "20px", display: "flex", flexDirection: "column", gap: "20px" }}>
+          <div
+            style={{
+              flex: 1,
+              overflowY: "auto",
+              padding: "20px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "20px",
+            }}
+          >
             {messages.map((msg) => (
               <motion.div
                 key={msg.id}
@@ -284,16 +293,13 @@ export default function ChatPage() {
                   flexDirection: msg.role === "user" ? "row-reverse" : "row",
                 }}
               >
-                {/* Avatar */}
                 <div
                   style={{
                     width: 32,
                     height: 32,
-                    borderRadius: "10px",
-                    background: msg.role === "user"
-                      ? "rgba(59, 130, 246, 0.2)"
-                      : "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-                    border: "1px solid rgba(99,179,255,0.2)",
+                    borderRadius: "8px",
+                    background: msg.role === "user" ? "var(--primary-soft)" : "var(--panel)",
+                    border: "1px solid var(--border)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -301,25 +307,19 @@ export default function ChatPage() {
                   }}
                 >
                   {msg.role === "user" ? (
-                    <User size={16} color="#63b3ff" />
+                    <User size={16} style={{ color: "var(--primary)" }} />
                   ) : (
-                    <Shield size={16} color="white" />
+                    <LogoMark size={18} />
                   )}
                 </div>
 
-                {/* Bubble */}
                 <div
                   style={{
-                    maxWidth: "75%",
+                    maxWidth: "76%",
                     padding: "14px 18px",
-                    borderRadius: msg.role === "user" ? "18px 4px 18px 18px" : "4px 18px 18px 18px",
-                    background: msg.role === "user"
-                      ? "linear-gradient(135deg, rgba(59,130,246,0.2), rgba(139,92,246,0.15))"
-                      : "rgba(255,255,255,0.03)",
-                    border: "1px solid",
-                    borderColor: msg.role === "user"
-                      ? "rgba(59,130,246,0.2)"
-                      : "rgba(99,179,255,0.08)",
+                    borderRadius: msg.role === "user" ? "12px 4px 12px 12px" : "4px 12px 12px 12px",
+                    background: msg.role === "user" ? "var(--primary-soft)" : "var(--panel)",
+                    border: "1px solid var(--border)",
                   }}
                 >
                   {msg.role === "assistant" ? (
@@ -327,7 +327,7 @@ export default function ChatPage() {
                       <ReactMarkdown>{msg.content || "▋"}</ReactMarkdown>
                     </div>
                   ) : (
-                    <p style={{ fontSize: "14px", color: "#e8f4fd", lineHeight: 1.5, margin: 0 }}>
+                    <p style={{ fontSize: "14px", color: "var(--foreground)", lineHeight: 1.5, margin: 0 }}>
                       {msg.content}
                     </p>
                   )}
@@ -337,26 +337,17 @@ export default function ChatPage() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input area */}
-          <div
-            style={{
-              padding: "16px 20px",
-              borderTop: "1px solid rgba(99,179,255,0.08)",
-              flexShrink: 0,
-            }}
-          >
+          <div style={{ padding: "16px 20px", borderTop: "1px solid var(--border)", flexShrink: 0 }}>
             <div
               style={{
                 display: "flex",
                 gap: "12px",
                 alignItems: "flex-end",
-                padding: "12px 16px",
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(99,179,255,0.12)",
-                borderRadius: "14px",
-                transition: "border-color 0.2s",
+                padding: "10px 14px",
+                background: "var(--panel)",
+                border: "1px solid var(--border)",
+                borderRadius: "8px",
               }}
-              onFocus={() => {}}
             >
               <textarea
                 ref={inputRef}
@@ -371,9 +362,9 @@ export default function ChatPage() {
                   flex: 1,
                   background: "transparent",
                   border: "none",
-                  color: "#e8f4fd",
+                  color: "var(--foreground)",
                   fontSize: "14px",
-                  fontFamily: "Inter, sans-serif",
+                  fontFamily: "inherit",
                   resize: "none",
                   outline: "none",
                   lineHeight: 1.5,
@@ -388,11 +379,9 @@ export default function ChatPage() {
                 style={{
                   width: 36,
                   height: 36,
-                  borderRadius: "10px",
-                  background: isStreaming || !input.trim()
-                    ? "rgba(59,130,246,0.1)"
-                    : "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-                  border: "none",
+                  borderRadius: "8px",
+                  background: isStreaming || !input.trim() ? "var(--panel)" : "var(--primary)",
+                  border: "1px solid var(--border)",
                   cursor: isStreaming || !input.trim() ? "not-allowed" : "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -402,14 +391,14 @@ export default function ChatPage() {
                 }}
               >
                 {isStreaming ? (
-                  <Loader2 size={16} color="#63b3ff" style={{ animation: "spin 0.8s linear infinite" }} />
+                  <Loader2 size={16} style={{ color: "var(--primary)", animation: "spin 0.8s linear infinite" }} />
                 ) : (
-                  <Send size={16} color={input.trim() ? "white" : "#4a6280"} />
+                  <Send size={16} color={input.trim() ? "var(--primary-fg)" : "var(--muted)"} />
                 )}
               </button>
             </div>
-            <p style={{ fontSize: "11px", color: "#4a6280", marginTop: "8px", textAlign: "center" }}>
-              Powered by Gemini AI • Specialized in Solana & Anchor security
+            <p style={{ fontSize: "11px", color: "var(--muted)", marginTop: "8px", textAlign: "center" }}>
+              Powered by Gemini AI · Specialized in Solana &amp; Anchor security
             </p>
           </div>
         </div>

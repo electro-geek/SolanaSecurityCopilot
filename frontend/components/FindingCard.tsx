@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, ShieldAlert, ShieldCheck, Info } from "lucide-react";
+import { AlertTriangle, ShieldAlert, Info } from "lucide-react";
 import { Finding } from "@/lib/api";
 
 interface Props {
@@ -9,57 +9,47 @@ interface Props {
   onClick: () => void;
 }
 
-const severityConfig = {
-  CRITICAL: { color: "#ef4444", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.2)", icon: <ShieldAlert size={14} /> },
-  HIGH: { color: "#f97316", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", icon: <AlertTriangle size={14} /> },
-  MEDIUM: { color: "#eab308", bg: "rgba(234,179,8,0.08)", border: "rgba(234,179,8,0.2)", icon: <AlertTriangle size={14} /> },
-  LOW: { color: "#22c55e", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", icon: <Info size={14} /> },
+const severityMeta = {
+  CRITICAL: { cls: "badge-critical", icon: <ShieldAlert size={12} /> },
+  HIGH: { cls: "badge-high", icon: <AlertTriangle size={12} /> },
+  MEDIUM: { cls: "badge-medium", icon: <AlertTriangle size={12} /> },
+  LOW: { cls: "badge-low", icon: <Info size={12} /> },
 };
 
 export default function FindingCard({ finding, isSelected, onClick }: Props) {
-  const cfg = severityConfig[finding.severity] || severityConfig.LOW;
+  const meta = severityMeta[finding.severity] || severityMeta.LOW;
 
   return (
     <div
       onClick={onClick}
       style={{
         padding: "14px 16px",
-        borderRadius: "10px",
+        borderRadius: "8px",
         cursor: "pointer",
-        background: isSelected ? "rgba(59, 130, 246, 0.1)" : "rgba(255,255,255,0.02)",
+        background: isSelected ? "var(--primary-soft)" : "var(--surface)",
         border: isSelected
-          ? "1px solid rgba(59, 130, 246, 0.35)"
-          : "1px solid rgba(99, 179, 255, 0.07)",
+          ? "1px solid var(--primary)"
+          : "1px solid var(--border)",
         transition: "all 0.2s",
         marginBottom: "8px",
       }}
     >
       {/* Severity + Rule ID */}
-      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "4px",
-            padding: "2px 8px",
-            borderRadius: "20px",
-            fontSize: "10px",
-            fontWeight: 700,
-            letterSpacing: "0.08em",
-            background: cfg.bg,
-            color: cfg.color,
-            border: `1px solid ${cfg.border}`,
-          }}
-        >
-          {cfg.icon}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          marginBottom: "8px",
+        }}
+      >
+        <span className={`badge ${meta.cls}`} style={{ fontSize: "10px" }}>
+          {meta.icon}
           {finding.severity}
         </span>
         <code
-          style={{
-            fontSize: "10px",
-            color: "#4a6280",
-            fontFamily: "JetBrains Mono, monospace",
-          }}
+          className="font-mono"
+          style={{ fontSize: "10px", color: "var(--muted)" }}
         >
           {finding.rule_id}
         </code>
@@ -70,7 +60,7 @@ export default function FindingCard({ finding, isSelected, onClick }: Props) {
         style={{
           fontSize: "13px",
           fontWeight: 600,
-          color: isSelected ? "#e8f4fd" : "#8aa3c8",
+          color: "var(--foreground)",
           marginBottom: "6px",
           lineHeight: 1.3,
         }}
@@ -81,10 +71,10 @@ export default function FindingCard({ finding, isSelected, onClick }: Props) {
       {/* File + line */}
       <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
         <code
+          className="font-mono"
           style={{
             fontSize: "11px",
-            color: "#4a6280",
-            fontFamily: "JetBrains Mono, monospace",
+            color: "var(--muted)",
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
@@ -93,7 +83,9 @@ export default function FindingCard({ finding, isSelected, onClick }: Props) {
         >
           {finding.file}
         </code>
-        <span style={{ fontSize: "11px", color: "#4a6280" }}>:{finding.line}</span>
+        <span className="font-mono" style={{ fontSize: "11px", color: "var(--muted)" }}>
+          :{finding.line}
+        </span>
       </div>
     </div>
   );

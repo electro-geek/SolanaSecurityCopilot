@@ -1,7 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useRef } from "react";
 import { Finding } from "@/lib/api";
+import { useTheme } from "@/context/ThemeContext";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
@@ -12,115 +14,124 @@ interface Props {
   height?: string;
 }
 
-export default function CodeEditor({ content, language = "rust", selectedFinding, height = "500px" }: Props) {
-  const handleEditorDidMount = (editor: any, monaco: any) => {
-    // Add severity-colored line decorations for the selected finding
-    if (selectedFinding) {
-      const severityColors: Record<string, string> = {
-        CRITICAL: "#ef4444",
-        HIGH: "#f97316",
-        MEDIUM: "#eab308",
-        LOW: "#22c55e",
-      };
-      const color = severityColors[selectedFinding.severity] || "#f97316";
-      
-      // Create a custom decoration style
-      monaco.editor.defineTheme("solshield-dark", {
-        base: "vs-dark",
-        inherit: true,
-        rules: [
-          { token: "comment", foreground: "4a6280", fontStyle: "italic" },
-          { token: "keyword", foreground: "a78bfa" },
-          { token: "string", foreground: "34d399" },
-          { token: "number", foreground: "fb923c" },
-          { token: "type", foreground: "60a5fa" },
-        ],
-        colors: {
-          "editor.background": "#080c14",
-          "editor.foreground": "#e8f4fd",
-          "editorLineNumber.foreground": "#2d4a6e",
-          "editorLineNumber.activeForeground": "#63b3ff",
-          "editor.selectionBackground": "#1e3a5f",
-          "editor.lineHighlightBackground": "#0f1a2e",
-          "editorGutter.background": "#0a1018",
-          "scrollbarSlider.background": "#1a3050",
-        },
-      });
-      monaco.editor.setTheme("solshield-dark");
+function cssVar(name: string, fallback: string): string {
+  if (typeof window === "undefined") return fallback;
+  const v = getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim();
+  return v || fallback;
+}
 
-      // Highlight the vulnerable line
-      const line = selectedFinding.line;
-      if (line > 0) {
-        editor.revealLineInCenter(line);
-        editor.deltaDecorations(
-          [],
-          [
-            {
-              range: new monaco.Range(line, 1, line, 9999),
-              options: {
-                isWholeLine: true,
-                className: "vulnerable-line",
-                glyphMarginClassName: "vulnerable-glyph",
-                overviewRuler: {
-                  color: color,
-                  position: monaco.editor.OverviewRulerLane.Left,
-                },
-                minimap: { color, position: 1 },
-                linesDecorationsClassName: "vulnerable-line-decoration",
-                inlineClassName: "vulnerable-inline",
-                hoverMessage: {
-                  value: `**${selectedFinding.severity}**: ${selectedFinding.title}`,
-                },
-              },
+function isLight(hex: string): boolean {
+  const m = hex.replace("#", "");
+  if (m.length < 6) return false;
+  const r = parseInt(m.slice(0, 2), 16);
+  const g = parseInt(m.slice(2, 4), 16);
+  const b = parseInt(m.slice(4, 6), 16);
+  return 0.299 * r + 0.587 * g + 0.114 * b > 150;
+}
+
+function hex(v: string): string | undefined {
+  return v.startsWith("#") ? v : undefined;
+}
+
+export default function CodeEditor({
+  content,
+  language = "rust",
+  selectedFinding,
+  height = "500px",
+}: Props) {
+  // theme value forces React to re-key the editor so the Monaco theme rebuilds
+  const { theme } = useTheme();
+  const decoRef = useRef<string[]>([]);
+
+  const applyTheme = (monaco: any) => {
+    const bg = cssVar("--surface", "#191f1c");
+    const fg = cssVar("--foreground", "#f2ead8");
+    const muted = cssVar("--muted", "#b7ad98");
+    const primary = cssVar("--primary", "#32b8a6");
+    const secondary = cssVar("--secondary", "#d99d43");
+    const panel = cssVar("--panel", "#202923");
+
+    const base = isLight(bg) ? "vs" : "vs-dark";
+    const colors: Record<string, string> = {};
+    const set = (k: string, v?: string) => {
+      if (v) colors[k] = v;
+    };
+    set("editor.background", hex(bg));
+    set("editor.foreground", hex(fg));
+    set("editorLineNumber.foreground", hex(muted));
+    set("editorLineNumber.activeForeground", hex(primary));
+    set("editor.lineHighlightBackground", hex(panel));
+    set("editorGutter.background", hex(bg));
+
+    monaco.editor.defineTheme("solshield", {
+      base,
+      inherit: true,
+      rules: [
+        { token: "comment", foreground: muted.replace("#", ""), fontStyle: "italic" },
+        { token: "keyword", foreground: primary.replace("#", "") },
+        { token: "string", foreground: secondary.replace("#", "") },
+        { token: "number", foreground: secondary.replace("#", "") },
+        { token: "type", foreground: primary.replace("#", "") },
+      ],
+      colors,
+    });
+    monaco.editor.setTheme("solshield");
+  };
+
+  const handleEditorDidMount = (editor: any, monaco: any) => {
+    applyTheme(monaco);
+
+    const severityVar: Record<string, string> = {
+      CRITICAL: "--sev-critical",
+      HIGH: "--sev-high",
+      MEDIUM: "--sev-medium",
+      LOW: "--sev-low",
+    };
+
+    if (selectedFinding && selectedFinding.line > 0) {
+      const color = cssVar(severityVar[selectedFinding.severity] || "--sev-high", "#e89a4a");
+      editor.revealLineInCenter(selectedFinding.line);
+      decoRef.current = editor.deltaDecorations(decoRef.current, [
+        {
+          range: new monaco.Range(selectedFinding.line, 1, selectedFinding.line, 9999),
+          options: {
+            isWholeLine: true,
+            className: "vulnerable-line",
+            linesDecorationsClassName: "vulnerable-line-decoration",
+            overviewRuler: {
+              color,
+              position: monaco.editor.OverviewRulerLane.Left,
             },
-          ]
-        );
-      }
-    } else {
-      // Apply theme without finding
-      monaco.editor.defineTheme("solshield-dark", {
-        base: "vs-dark",
-        inherit: true,
-        rules: [
-          { token: "comment", foreground: "4a6280", fontStyle: "italic" },
-          { token: "keyword", foreground: "a78bfa" },
-          { token: "string", foreground: "34d399" },
-          { token: "number", foreground: "fb923c" },
-          { token: "type", foreground: "60a5fa" },
-        ],
-        colors: {
-          "editor.background": "#080c14",
-          "editor.foreground": "#e8f4fd",
-          "editorLineNumber.foreground": "#2d4a6e",
-          "editorLineNumber.activeForeground": "#63b3ff",
-          "editor.selectionBackground": "#1e3a5f",
-          "editor.lineHighlightBackground": "#0f1a2e",
-          "editorGutter.background": "#0a1018",
-          "scrollbarSlider.background": "#1a3050",
+            minimap: { color, position: 1 },
+            hoverMessage: {
+              value: `**${selectedFinding.severity}**: ${selectedFinding.title}`,
+            },
+          },
         },
-      });
-      monaco.editor.setTheme("solshield-dark");
+      ]);
     }
   };
 
   return (
     <div
       style={{
-        borderRadius: "12px",
+        borderRadius: "8px",
         overflow: "hidden",
-        border: "1px solid rgba(99, 179, 255, 0.1)",
+        border: "1px solid var(--border)",
       }}
     >
       <style>{`
-        .vulnerable-line { background: rgba(249, 115, 22, 0.12) !important; }
-        .vulnerable-line-decoration { width: 3px !important; background: #f97316; margin-left: 3px; border-radius: 2px; }
-        .monaco-editor .view-overlays .current-line { background: rgba(15, 26, 46, 0.8); }
+        .vulnerable-line { background: color-mix(in srgb, var(--sev-high) 14%, transparent) !important; }
+        .vulnerable-line-decoration { width: 3px !important; background: var(--sev-high); margin-left: 3px; border-radius: 2px; }
       `}</style>
       <MonacoEditor
+        key={theme}
         height={height}
         language={language}
         value={content}
-        theme="solshield-dark"
+        theme="solshield"
         onMount={handleEditorDidMount}
         options={{
           readOnly: true,
@@ -134,7 +145,7 @@ export default function CodeEditor({ content, language = "rust", selectedFinding
           automaticLayout: true,
           renderLineHighlight: "all",
           cursorStyle: "line",
-          fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+          fontFamily: "ui-monospace, 'JetBrains Mono', 'Fira Code', monospace",
           fontLigatures: true,
           padding: { top: 16, bottom: 16 },
           smoothScrolling: true,
