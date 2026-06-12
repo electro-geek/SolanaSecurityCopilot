@@ -11,7 +11,6 @@ import {
   History,
   LogIn,
   LogOut,
-  Palette,
   User as UserIcon,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -23,7 +22,6 @@ const navItems = [
   { href: "/", label: "Home", icon: <Home size={15} /> },
   { href: "/dashboard", label: "Dashboard", icon: <LayoutDashboard size={15} /> },
   { href: "/chat", label: "AI Chat", icon: <MessageSquare size={15} /> },
-  { href: "/brandkit", label: "Brand Kit", icon: <Palette size={15} /> },
   { href: "/history", label: "History", icon: <History size={15} />, private: true },
 ];
 
@@ -40,12 +38,10 @@ export default function Navbar() {
         position: "sticky",
         top: 0,
         zIndex: 50,
-        background: "var(--surface-glass)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
-        borderBottom: "1px solid var(--border)",
+        background: "var(--surface)",
+        borderBottom: "3px solid var(--border)",
         padding: "0 24px",
-        height: "56px",
+        height: "60px",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
@@ -71,17 +67,17 @@ export default function Navbar() {
                 display: "flex",
                 alignItems: "center",
                 gap: "6px",
-                padding: "6px 13px",
-                borderRadius: "8px",
+                padding: "6px 14px",
+                borderRadius: "999px",
                 fontSize: "13px",
-                fontWeight: 600,
+                fontWeight: 700,
                 textDecoration: "none",
                 transition: "all 0.2s",
-                background: isActive ? "var(--primary-soft)" : "transparent",
-                color: isActive ? "var(--primary)" : "var(--muted)",
+                background: isActive ? "var(--primary)" : "transparent",
+                color: isActive ? "var(--primary-fg)" : "var(--muted)",
                 border: isActive
-                  ? "1px solid color-mix(in srgb, var(--primary) 35%, transparent)"
-                  : "1px solid transparent",
+                  ? "2px solid var(--border)"
+                  : "2px solid transparent",
               }}
             >
               {item.icon}
@@ -103,10 +99,10 @@ export default function Navbar() {
               onClick={() => setShowProfileMenu(!showProfileMenu)}
               style={{
                 background: "var(--panel)",
-                border: "1px solid var(--border)",
+                border: "2px solid var(--border)",
                 borderRadius: "50%",
-                width: 32,
-                height: 32,
+                width: 34,
+                height: 34,
                 overflow: "hidden",
                 cursor: "pointer",
                 padding: 0,
@@ -136,18 +132,18 @@ export default function Navbar() {
                     position: "absolute",
                     top: "42px",
                     right: 0,
-                    width: "200px",
+                    width: "210px",
                     background: "var(--surface)",
-                    border: "1px solid var(--border)",
-                    borderRadius: "8px",
+                    border: "3px solid var(--border)",
+                    borderRadius: "14px",
                     padding: "8px",
-                    boxShadow: "0 12px 32px rgba(0,0,0,0.28)",
+                    boxShadow: "5px 5px 0px 0px var(--shadow-color)",
                   }}
                 >
                   <div
                     style={{
                       padding: "8px",
-                      borderBottom: "1px solid var(--border)",
+                      borderBottom: "2px solid var(--border)",
                       marginBottom: "4px",
                     }}
                   >

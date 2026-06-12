@@ -9,10 +9,10 @@ import {
 } from "react";
 
 export type ThemeId =
-  | "paper-lab"
-  | "graphite-lab"
-  | "sage-board"
-  | "high-contrast";
+  | "mint-pop"
+  | "tangerine-pop"
+  | "banana-pop"
+  | "midnight-brutal";
 
 export interface ThemeMeta {
   id: ThemeId;
@@ -24,37 +24,37 @@ export interface ThemeMeta {
 
 export const THEMES: ThemeMeta[] = [
   {
-    id: "graphite-lab",
-    name: "Graphite Lab",
+    id: "mint-pop",
+    name: "Mint Pop",
+    icon: "🍃",
+    description: "Off-white, teal CTA, orange pop",
+    swatches: ["#fefdfb", "#2dd4bf", "#fb923c"],
+  },
+  {
+    id: "tangerine-pop",
+    name: "Tangerine Pop",
+    icon: "🍊",
+    description: "Warm white, orange CTA, teal pop",
+    swatches: ["#fffbf5", "#fb923c", "#2dd4bf"],
+  },
+  {
+    id: "banana-pop",
+    name: "Banana Pop",
+    icon: "🍌",
+    description: "Cream white, amber CTA",
+    swatches: ["#fffdf2", "#fbbf24", "#2dd4bf"],
+  },
+  {
+    id: "midnight-brutal",
+    name: "Midnight Brutal",
     icon: "🌑",
-    description: "Charcoal workspace, teal signal",
-    swatches: ["#111513", "#32b8a6", "#d99d43"],
-  },
-  {
-    id: "paper-lab",
-    name: "Paper Lab",
-    icon: "📄",
-    description: "Warm paper, cobalt notes",
-    swatches: ["#f6efe3", "#2457d6", "#a94922"],
-  },
-  {
-    id: "sage-board",
-    name: "Sage Board",
-    icon: "🌿",
-    description: "Quiet green-gray board",
-    swatches: ["#edf1e7", "#2f67b1", "#9a6043"],
-  },
-  {
-    id: "high-contrast",
-    name: "High Contrast",
-    icon: "⚡",
-    description: "Crisp, accessible, electric",
-    swatches: ["#ffffff", "#0048ff", "#c74700"],
+    description: "Gray-900, ghost borders, teal signal",
+    swatches: ["#111827", "#2dd4bf", "#fb923c"],
   },
 ];
 
 const STORAGE_KEY = "solshield_theme";
-const DEFAULT_THEME: ThemeId = "graphite-lab";
+const DEFAULT_THEME: ThemeId = "mint-pop";
 
 interface ThemeCtx {
   theme: ThemeId;
@@ -104,4 +104,4 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 export const useTheme = () => useContext(ThemeContext);
 
 /** Inline script string injected before paint to avoid theme flash. */
-export const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('${STORAGE_KEY}')||'${DEFAULT_THEME}';var v=['paper-lab','graphite-lab','sage-board','high-contrast'];if(v.indexOf(t)<0)t='${DEFAULT_THEME}';var e=document.documentElement;v.forEach(function(x){e.classList.remove('theme-'+x)});e.classList.add('theme-'+t);}catch(e){document.documentElement.classList.add('theme-${DEFAULT_THEME}');}})();`;
+export const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('${STORAGE_KEY}')||'${DEFAULT_THEME}';var v=['mint-pop','tangerine-pop','banana-pop','midnight-brutal'];if(v.indexOf(t)<0)t='${DEFAULT_THEME}';var e=document.documentElement;v.forEach(function(x){e.classList.remove('theme-'+x)});e.classList.add('theme-'+t);}catch(e){document.documentElement.classList.add('theme-${DEFAULT_THEME}');}})();`;

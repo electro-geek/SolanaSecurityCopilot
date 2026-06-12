@@ -94,7 +94,7 @@ export default function ResultsPage() {
   const { summary } = result;
 
   const cards = [
-    { label: "Total Findings", value: summary.total, icon: <Layers size={18} />, color: "var(--primary)" },
+    { label: "Total Findings", value: summary.total, icon: <Layers size={18} />, color: "var(--primary-text)" },
     { label: "Critical", value: summary.critical, icon: <ShieldAlert size={18} />, color: "var(--sev-critical)" },
     { label: "High", value: summary.high, icon: <AlertTriangle size={18} />, color: "var(--sev-high)" },
     { label: "Medium", value: summary.medium, icon: <AlertTriangle size={18} />, color: "var(--sev-medium)" },
@@ -203,9 +203,9 @@ export default function ResultsPage() {
             className="card"
             style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}
           >
-            <div style={{ padding: "14px 16px", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
+            <div style={{ padding: "14px 16px", borderBottom: "2px solid var(--border)", flexShrink: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
-                <Filter size={14} style={{ color: "var(--primary)" }} />
+                <Filter size={14} style={{ color: "var(--primary-text)" }} />
                 <span className="section-label">Findings ({filteredFindings.length})</span>
               </div>
               <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
@@ -218,7 +218,7 @@ export default function ResultsPage() {
                       borderRadius: "6px",
                       fontSize: "10px",
                       fontWeight: 700,
-                      border: "1px solid var(--border)",
+                      border: "2px solid var(--border)",
                       cursor: "pointer",
                       fontFamily: "inherit",
                       background: filter === sev ? "var(--primary-soft)" : "transparent",
@@ -264,7 +264,7 @@ export default function ResultsPage() {
             className="card"
             style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}
           >
-            <div style={{ display: "flex", borderBottom: "1px solid var(--border)", padding: "0 16px", flexShrink: 0 }}>
+            <div style={{ display: "flex", borderBottom: "2px solid var(--border)", padding: "0 16px", flexShrink: 0 }}>
               {[
                 { id: "detail", label: "AI Analysis" },
                 { id: "code", label: "Code View" },

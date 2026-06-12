@@ -24,14 +24,14 @@ export default function FindingCard({ finding, isSelected, onClick }: Props) {
       onClick={onClick}
       style={{
         padding: "14px 16px",
-        borderRadius: "8px",
+        borderRadius: "12px",
         cursor: "pointer",
         background: isSelected ? "var(--primary-soft)" : "var(--surface)",
-        border: isSelected
-          ? "1px solid var(--primary)"
-          : "1px solid var(--border)",
-        transition: "all 0.2s",
-        marginBottom: "8px",
+        border: "2px solid var(--border)",
+        boxShadow: isSelected ? "4px 4px 0px 0px var(--shadow-color)" : "none",
+        transform: isSelected ? "translate(-2px, -2px)" : "none",
+        transition: "all 0.15s ease",
+        marginBottom: "10px",
       }}
     >
       {/* Severity + Rule ID */}

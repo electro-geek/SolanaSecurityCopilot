@@ -40,9 +40,10 @@ export default function DropZone({ onFile, disabled }: Props) {
       {...getRootProps()}
       style={{
         padding: "40px 24px",
-        borderRadius: "8px",
-        border: `1.5px dashed ${isDragActive ? "var(--primary)" : "var(--border)"}`,
+        borderRadius: "16px",
+        border: `3px dashed ${isDragActive ? "var(--primary)" : "var(--border)"}`,
         background: isDragActive ? "var(--primary-soft)" : "var(--panel)",
+        boxShadow: isDragActive ? "5px 5px 0px 0px var(--shadow-color)" : "none",
         cursor: disabled ? "not-allowed" : "pointer",
         transition: "all 0.25s ease",
         textAlign: "center",
@@ -69,9 +70,9 @@ export default function DropZone({ onFile, disabled }: Props) {
               style={{
                 width: 56,
                 height: 56,
-                borderRadius: "8px",
-                background: "color-mix(in srgb, var(--sev-low) 14%, transparent)",
-                border: "1px solid color-mix(in srgb, var(--sev-low) 30%, transparent)",
+                borderRadius: "12px",
+                background: "color-mix(in srgb, var(--sev-low) 16%, transparent)",
+                border: "3px solid var(--sev-low)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -109,8 +110,8 @@ export default function DropZone({ onFile, disabled }: Props) {
                 top: "12px",
                 right: "12px",
                 background: "var(--surface)",
-                border: "1px solid var(--border)",
-                borderRadius: "6px",
+                border: "2px solid var(--border)",
+                borderRadius: "8px",
                 width: "28px",
                 height: "28px",
                 display: "flex",
@@ -142,15 +143,15 @@ export default function DropZone({ onFile, disabled }: Props) {
               style={{
                 width: 56,
                 height: 56,
-                borderRadius: "8px",
-                background: "var(--primary-soft)",
-                border: "1px solid var(--primary)",
+                borderRadius: "12px",
+                background: "var(--primary)",
+                border: "3px solid var(--border)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <Upload size={24} style={{ color: "var(--primary)" }} />
+              <Upload size={24} style={{ color: "var(--primary-fg)" }} />
             </motion.div>
             <div>
               <div

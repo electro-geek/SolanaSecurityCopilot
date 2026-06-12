@@ -30,13 +30,13 @@ export default function ThemePicker() {
           alignItems: "center",
           gap: "7px",
           padding: "6px 10px",
-          borderRadius: "20px",
-          background: "var(--panel)",
-          border: "1px solid var(--border)",
+          borderRadius: "999px",
+          background: "var(--surface)",
+          border: "2px solid var(--border)",
           color: "var(--foreground)",
           cursor: "pointer",
           fontSize: "12px",
-          fontWeight: 600,
+          fontWeight: 700,
           fontFamily: "inherit",
         }}
       >
@@ -58,12 +58,12 @@ export default function ThemePicker() {
               position: "absolute",
               top: "calc(100% + 8px)",
               right: 0,
-              width: "264px",
+              width: "272px",
               background: "var(--surface)",
-              border: "1px solid var(--border)",
-              borderRadius: "8px",
+              border: "3px solid var(--border)",
+              borderRadius: "14px",
               padding: "6px",
-              boxShadow: "0 12px 32px rgba(0,0,0,0.28)",
+              boxShadow: "5px 5px 0px 0px var(--shadow-color)",
               zIndex: 200,
             }}
           >
@@ -132,17 +132,17 @@ export default function ThemePicker() {
                       <span
                         key={i}
                         style={{
-                          width: 11,
-                          height: 11,
-                          borderRadius: "3px",
+                          width: 12,
+                          height: 12,
+                          borderRadius: "4px",
                           background: c,
-                          border: "1px solid var(--border)",
+                          border: "1.5px solid var(--border)",
                         }}
                       />
                     ))}
                   </span>
                   {isActive && (
-                    <Check size={14} style={{ color: "var(--primary)" }} />
+                    <Check size={14} style={{ color: "var(--primary-text)" }} />
                   )}
                 </button>
               );

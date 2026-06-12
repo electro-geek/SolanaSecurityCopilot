@@ -97,12 +97,11 @@ backend/
 ```
 frontend/
   app/
-    layout.tsx         # Root layout — DM Sans font, ThemeProvider + AuthProvider, grid-bg, theme-init script
-    page.tsx           # Landing page (marketing) — floating nav, scan-trace hero, bento, GSAP scroll
-    brandkit/page.tsx  # Living brand-guidelines page (logo, palette, type, components, taglines)
-    globals.css        # AlgoVizuals design system — 4 theme token blocks + token-driven component classes
+    layout.tsx         # Root layout — system font stack, ThemeProvider + AuthProvider, grid-bg, theme-init script
+    page.tsx           # Landing page (marketing) — sticky bordered nav, pill-label hero, trace mockup, stat grid, inverted marquee + steps, feature grid, rules table, GSAP reveals
+    globals.css        # Neo-Brutalist design system — 4 theme token blocks + token-driven component classes
   components/
-    Navbar.tsx         # Sticky glass nav — Logo + links + ThemePicker + auth
+    Navbar.tsx         # Sticky bordered nav — Logo + pill links + ThemePicker + auth
     Logo.tsx           # Brand mark — <LogoMark/> (SVG, currentColor) + <Logo/> wordmark
     ThemePicker.tsx    # Theme switcher dropdown (writes .theme-* class on <html>)
     DropZone.tsx       # ZIP drag-and-drop upload (react-dropzone)
@@ -111,7 +110,7 @@ frontend/
     FindingDetail.tsx  # Expanded finding view with AI explanation
   context/
     AuthContext.tsx    # Firebase auth state — exposes user + token
-    ThemeContext.tsx   # AlgoVizuals theme state (4 themes), localStorage `solshield_theme`, THEME_INIT_SCRIPT
+    ThemeContext.tsx   # Neo-Brutalist theme state (4 themes), localStorage `solshield_theme`, THEME_INIT_SCRIPT
   lib/
     api.ts             # Axios instance + typed API functions (scanZip, scanGitHub, streamChat, analyzeFinding)
     firebase.ts        # Firebase app initialization
@@ -122,8 +121,8 @@ public/
 **Key details:**
 - Auth token is stored in `localStorage` under `solshield_token` and attached to every API request via an axios interceptor.
 - The frontend uses **Next.js 16.2.6** (not 15 as README states) — before using App Router APIs, check `node_modules/next/dist/docs/` for breaking changes per the `AGENTS.md` warning.
-- **Design system = AlgoVizuals UI** (graph-paper / engineering-notebook). Everything is driven by CSS custom properties in `globals.css`. Four themes — Graphite Lab (default, dark), Paper Lab, Sage Board, High Contrast — are each a `.theme-*` block on `<html>`; the bare `html` selector carries the Graphite defaults. **Never hardcode hex** in components: use `var(--token)` (`--background --surface --panel --foreground --muted --primary --primary-fg --secondary --border`, severity `--sev-critical/-high/-medium/-low`) so theme switching is free. Use `color-mix(in srgb, var(--token) N%, transparent)` for tints.
-- Shared component classes: `.card` / `.glass-card`, `.panel`, `.btn-primary` / `.btn`, `.btn-ghost` / `.btn-secondary`, `.badge` + `.badge-{critical,high,medium,low}`, `.input-field`, `.section-label` (uppercase wayfinding), `.stat-block`, `.spinner`, `.markdown-content`, `.grid-bg` (fixed graph-paper bg), `.lift` (hover). Headings use `.font-heading` (DM Sans 800); code uses `.font-mono` (system monospace).
+- **Design system = Neo-Brutalist UI** (thick 3px borders, hard offset shadows with zero blur, vivid teal/orange/amber accents, font-weight 900 headings). Everything is driven by CSS custom properties in `globals.css`. Four themes — Mint Pop (default, light), Tangerine Pop, Banana Pop, Midnight Brutal (dark) — are each a `.theme-*` block on `<html>`; the bare `html` selector carries the Mint Pop defaults. **Never hardcode hex** in components: use `var(--token)` (`--background --surface --panel --foreground --muted --primary --primary-fg --secondary --accent --border --shadow-color`, severity `--sev-critical/-high/-medium/-low`) so theme switching is free. **Text vs fill**: `--primary`/`--secondary` (vivid 400-tone) are for *fills* only; for colored *text or icons* on light surfaces use `--primary-text`/`--secondary-text` (contrast-safe 700-tone per theme). Hard shadows are always `Npx Npx 0px 0px var(--shadow-color)` (4/5/6/8px scale), hover lift is `translate(-2px,-2px)` + shadow grow. Use `color-mix(in srgb, var(--token) N%, transparent)` for tints; dark/inverted landing sections use `var(--foreground)` as bg with `color-mix` tints of `var(--background)`.
+- Shared component classes: `.card` / `.glass-card`, `.panel`, `.btn-primary` / `.btn`, `.btn-ghost` / `.btn-secondary`, `.badge` + `.badge-{critical,high,medium,low}`, `.pill-label` (section header chip), `.icon-box` + `.icon-box--{primary,secondary,accent}`, `.input-field`, `.section-label` (uppercase wayfinding), `.stat-block`, `.spinner`, `.markdown-content`, `.grid-bg` (fixed bg washes + dot grid), `.lift` (hover). Headings use the system font stack at weight 900 (no webfonts); code uses `.font-mono` (system monospace).
 - Logos: import `Logo` (wordmark) or `LogoMark` (icon) from `@/components/Logo` — never re-draw the shield inline. The mark uses `currentColor`/`var(--primary)` so it adapts per theme.
 - Tailwind v4 is configured but the project uses inline styles + the global token classes above; don't rely on Tailwind utility generation.
 

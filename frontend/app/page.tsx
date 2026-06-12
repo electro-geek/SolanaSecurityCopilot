@@ -7,13 +7,17 @@ import { useGSAP } from "@gsap/react";
 import Link from "next/link";
 import {
   Zap,
+  ArrowRight,
   ArrowUpRight,
   Code2,
   GitBranch,
   MessageSquare,
   Eye,
-  Lock,
-  CheckCircle2,
+  Upload,
+  Sparkles,
+  History,
+  Clock,
+  Star,
   ShieldCheck,
 } from "lucide-react";
 import Logo, { LogoMark } from "@/components/Logo";
@@ -21,14 +25,16 @@ import ThemePicker from "@/components/ThemePicker";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
+/* ---------- data ---------- */
+
 const VULN_RULES = [
-  "SOL-001 · Missing Signer Validation",
-  "SOL-002 · Unsafe unwrap() Usage",
-  "SOL-003 · Account Ownership Missing",
-  "SOL-004 · Insecure CPI Invocation",
-  "SOL-005 · PDA Validation Issues",
-  "SOL-006 · Arithmetic Overflow Risk",
-  "SOL-007 · Missing Authority Check",
+  { id: "SOL-001", name: "Missing Signer Validation", catches: "Instructions that mutate state without verifying the caller signed the transaction", severity: "high" },
+  { id: "SOL-002", name: "Unsafe unwrap() Usage", catches: "Panics on None/Err that can brick an instruction and enable griefing", severity: "medium" },
+  { id: "SOL-003", name: "Account Ownership Missing", catches: "Accounts deserialized without checking the owning program", severity: "high" },
+  { id: "SOL-004", name: "Insecure CPI Invocation", catches: "Cross-program invokes against unverified target program IDs", severity: "high" },
+  { id: "SOL-005", name: "PDA Validation Issues", catches: "Seeds/bump mismatches that let attackers substitute forged PDAs", severity: "high" },
+  { id: "SOL-006", name: "Arithmetic Overflow Risk", catches: "Unchecked +, -, * on token amounts and balances", severity: "medium" },
+  { id: "SOL-007", name: "Missing Authority Check", catches: "Admin-only paths reachable without comparing against the stored authority", severity: "high" },
 ];
 
 const TRACE_ROWS = [
@@ -39,76 +45,115 @@ const TRACE_ROWS = [
   { id: "SOL-006", label: "arithmetic_overflow", status: "pass" },
 ];
 
-const SCRUB_SENTENCE =
-  "Every Rust file parsed. Every exploit scenario modeled. Every fix explained in plain language before a single user's funds are lost on-chain.";
+const STATS = [
+  { value: "7", label: "Detection Rules", icon: <ShieldCheck size={20} />, box: "icon-box--primary" },
+  { value: "<2s", label: "Avg Scan Time", icon: <Zap size={20} />, box: "icon-box--secondary" },
+  { value: "100%", label: "Free · No Login", icon: <Star size={20} />, box: "icon-box--accent" },
+  { value: "24/7", label: "AI Assistant", icon: <MessageSquare size={20} />, box: "icon-box--primary" },
+];
+
+const STEPS = [
+  {
+    n: "01",
+    box: "icon-box--primary",
+    icon: <Upload size={22} />,
+    title: "Upload or paste a URL",
+    desc: "Drop an Anchor project ZIP or paste any public GitHub repo URL. No account needed for quick audits.",
+    time: "~5 sec",
+  },
+  {
+    n: "02",
+    box: "icon-box--secondary",
+    icon: <Code2 size={22} />,
+    title: "7 rules scan in parallel",
+    desc: "Every .rs file is parsed and checked for signer, ownership, CPI, PDA, overflow, authority, and unwrap() issues.",
+    time: "~2 sec",
+  },
+  {
+    n: "03",
+    box: "icon-box--accent",
+    icon: <Sparkles size={22} />,
+    title: "AI explains every finding",
+    desc: "Click any finding for a Gemini-written exploit scenario, root cause, and the secure Rust fix.",
+    time: "on demand",
+  },
+];
+
+const FEATURES = [
+  {
+    box: "icon-box--primary",
+    icon: <Code2 size={22} />,
+    title: "Static Analysis Engine",
+    desc: "7 security rules check every function signature, CPI call, PDA seed derivation, and arithmetic operation across your whole Anchor program.",
+  },
+  {
+    box: "icon-box--secondary",
+    icon: <Sparkles size={22} />,
+    title: "Gemini AI Explanations",
+    desc: "Every finding gets an on-demand exploit scenario, root cause analysis, and secure Rust fix — powered by Gemini 2.5 Flash.",
+  },
+  {
+    box: "icon-box--accent",
+    icon: <Eye size={22} />,
+    title: "Monaco Code Viewer",
+    desc: "Interactive editor highlights vulnerable lines with inline severity markers and jump-to-line navigation.",
+  },
+  {
+    box: "icon-box--secondary",
+    icon: <GitBranch size={22} />,
+    title: "GitHub Repo Scanner",
+    desc: "Paste a URL — SolShield clones the repo, finds every .rs file, runs the full suite, and returns a report.",
+  },
+  {
+    box: "icon-box--accent",
+    icon: <MessageSquare size={22} />,
+    title: "AI Security Chat",
+    desc: "A streaming Solana-security assistant for follow-up questions, secure patterns, and code reviews.",
+  },
+  {
+    box: "icon-box--primary",
+    icon: <History size={22} />,
+    title: "Scan History",
+    desc: "Sign in with Google and every scan is stored — revisit findings and track fixes over time.",
+  },
+];
+
+/* tint helpers for the inverted (dark-on-light themes) sections */
+const INK = "var(--foreground)";
+const PAPER = "var(--background)";
+const inkTint = (pct: number) =>
+  `color-mix(in srgb, ${PAPER} ${pct}%, transparent)`;
 
 export default function LandingPage() {
   const mainRef = useRef<HTMLElement>(null);
-  const bentoRef = useRef<HTMLDivElement>(null);
-  const scrubRef = useRef<HTMLElement>(null);
-  const statsRef = useRef<HTMLElement>(null);
 
   useGSAP(
     () => {
       const heroTl = gsap.timeline({ defaults: { ease: "power4.out" } });
       heroTl
-        .from(".hero-eyebrow", { y: 24, opacity: 0, duration: 0.6 })
-        .from(".hero-title", { y: 48, opacity: 0, duration: 1 }, "-=0.4")
-        .from(".hero-sub", { y: 32, opacity: 0, duration: 0.8 }, "-=0.6")
-        .from(".hero-ctas", { y: 22, opacity: 0, duration: 0.6 }, "-=0.5")
-        .from(".hero-trace", { y: 60, opacity: 0, duration: 0.9 }, "-=0.35")
-        .from(".trace-row", { x: -16, opacity: 0, stagger: 0.08, duration: 0.4 }, "-=0.4");
+        .from(".hero-pill", { y: 24, opacity: 0, duration: 0.5 })
+        .from(".hero-title", { y: 48, opacity: 0, duration: 0.9 }, "-=0.3")
+        .from(".hero-sub", { y: 32, opacity: 0, duration: 0.7 }, "-=0.55")
+        .from(".hero-proof", { y: 20, opacity: 0, duration: 0.5 }, "-=0.45")
+        .from(".hero-ctas", { y: 20, opacity: 0, duration: 0.5 }, "-=0.35")
+        .from(".hero-trace", { y: 60, opacity: 0, duration: 0.8 }, "-=0.3")
+        .from(".trace-row", { x: -16, opacity: 0, stagger: 0.07, duration: 0.35 }, "-=0.35");
 
-      gsap.from(".bento-item", {
-        y: 56,
-        opacity: 0,
-        duration: 0.7,
-        stagger: 0.1,
-        ease: "power3.out",
-        scrollTrigger: { trigger: bentoRef.current, start: "top 80%" },
-      });
+      const reveal = (sel: string, trigger: string) =>
+        gsap.from(sel, {
+          y: 42,
+          opacity: 0,
+          duration: 0.6,
+          stagger: 0.09,
+          ease: "power3.out",
+          scrollTrigger: { trigger, start: "top 82%" },
+        });
 
-      gsap.fromTo(
-        ".scrub-word",
-        { opacity: 0.12 },
-        {
-          opacity: 1,
-          stagger: 0.035,
-          ease: "none",
-          scrollTrigger: {
-            trigger: scrubRef.current,
-            start: "top 65%",
-            end: "bottom 40%",
-            scrub: 1.6,
-          },
-        }
-      );
-
-      gsap.from(".scrub-feature", {
-        y: 28,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.12,
-        ease: "power3.out",
-        scrollTrigger: { trigger: ".scrub-feature-list", start: "top 82%" },
-      });
-
-      gsap.from(".stat-block", {
-        y: 36,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: "power3.out",
-        scrollTrigger: { trigger: statsRef.current, start: "top 84%" },
-      });
-
-      gsap.from(".cta-content", {
-        y: 40,
-        opacity: 0,
-        duration: 0.8,
-        ease: "power3.out",
-        scrollTrigger: { trigger: ".cta-content", start: "top 82%" },
-      });
+      reveal(".stat-item", ".stats-grid");
+      reveal(".step-card", ".steps-grid");
+      reveal(".feature-card", ".features-grid");
+      reveal(".rules-table-wrap", ".rules-table-wrap");
+      reveal(".cta-content", ".cta-content");
     },
     { scope: mainRef }
   );
@@ -127,125 +172,178 @@ export default function LandingPage() {
       {/* ─────────── NAV ─────────── */}
       <nav
         style={{
-          position: "fixed",
-          top: "16px",
-          left: "50%",
-          transform: "translateX(-50%)",
+          position: "sticky",
+          top: 0,
           zIndex: 1000,
           display: "flex",
           alignItems: "center",
-          gap: "24px",
-          padding: "8px 10px 8px 18px",
-          borderRadius: "12px",
-          background: "var(--surface-glass)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          border: "1px solid var(--border)",
-          boxShadow: "0 8px 28px rgba(0,0,0,0.18)",
-          whiteSpace: "nowrap",
-          maxWidth: "calc(100vw - 24px)",
+          justifyContent: "space-between",
+          gap: "20px",
+          padding: "12px clamp(20px, 4vw, 48px)",
+          background: "var(--surface)",
+          borderBottom: "3px solid var(--border)",
         }}
       >
-        <Logo size={24} fontSize={14} />
+        <Link href="/" style={{ textDecoration: "none" }}>
+          <Logo size={28} fontSize={16} />
+        </Link>
         <div
+          className="landing-nav-links"
           style={{
             display: "flex",
-            gap: "20px",
-            fontSize: "12.5px",
-            fontWeight: 600,
+            gap: "6px",
+            fontSize: "13px",
+            fontWeight: 700,
             color: "var(--muted)",
+            alignItems: "center",
           }}
-          className="landing-nav-links"
         >
           {[
             { label: "Features", href: "#features" },
             { label: "How It Works", href: "#how" },
-            { label: "Brand Kit", href: "/brandkit" },
+            { label: "Rules", href: "#rules" },
             { label: "Dashboard", href: "/dashboard" },
           ].map(({ label, href }) => (
             <Link
               key={label}
               href={href}
               className="nav-link"
-              style={{ color: "inherit", textDecoration: "none" }}
+              style={{
+                color: "inherit",
+                textDecoration: "none",
+                padding: "6px 12px",
+                borderRadius: "999px",
+              }}
             >
               {label}
             </Link>
           ))}
         </div>
-        <ThemePicker />
-        <Link href="/dashboard" className="btn-primary" style={{ padding: "7px 16px", fontSize: "12.5px" }}>
-          Start Audit
-        </Link>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <ThemePicker />
+          <Link
+            href="/dashboard"
+            className="btn-primary"
+            style={{ padding: "8px 18px", fontSize: "13px" }}
+          >
+            <Zap size={14} />
+            Start Audit
+          </Link>
+        </div>
       </nav>
 
       {/* ─────────── HERO ─────────── */}
       <section
         style={{
-          minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
           textAlign: "center",
-          padding: "130px 24px 64px",
+          padding: "clamp(64px, 9vw, 120px) 24px 56px",
           position: "relative",
         }}
       >
-        <div style={{ position: "relative", zIndex: 1, maxWidth: "920px", width: "100%" }}>
-          <div
-            className="hero-eyebrow badge"
-            style={{
-              background: "var(--primary-soft)",
-              borderColor: "color-mix(in srgb, var(--primary) 30%, transparent)",
-              color: "var(--primary)",
-              marginBottom: "28px",
-              fontSize: "11.5px",
-            }}
-          >
-            <Zap size={11} />
+        <div style={{ position: "relative", zIndex: 1, maxWidth: "880px", width: "100%" }}>
+          <div className="hero-pill pill-label" style={{ marginBottom: "28px" }}>
+            <Zap size={14} style={{ color: "var(--secondary-text)" }} />
             AI-Powered Solana Security Auditing
           </div>
 
           <h1
             className="hero-title"
             style={{
-              fontSize: "clamp(2.6rem, 6vw, 5.4rem)",
-              fontWeight: 800,
-              lineHeight: 1.04,
+              fontSize: "clamp(2.7rem, 6.4vw, 5.2rem)",
+              fontWeight: 900,
+              lineHeight: 1.05,
               letterSpacing: "-0.045em",
               marginBottom: "24px",
             }}
           >
-            Audit Solana contracts
+            Ship Solana contracts.
             <br />
-            <span style={{ color: "var(--primary)" }}>before exploit day</span>
+            <span
+              style={{
+                color: "var(--secondary-text)",
+                borderBottom: "6px solid var(--secondary)",
+                lineHeight: 1.2,
+              }}
+            >
+              Audited in seconds.
+            </span>
           </h1>
 
           <p
             className="hero-sub"
             style={{
-              fontSize: "clamp(15px, 1.7vw, 18px)",
+              fontSize: "clamp(15px, 1.8vw, 18px)",
               color: "var(--muted)",
-              maxWidth: "560px",
-              margin: "0 auto 36px",
+              fontWeight: 500,
+              maxWidth: "580px",
+              margin: "0 auto 28px",
               lineHeight: 1.65,
             }}
           >
-            SolShield AI scans Anchor and Rust smart contracts for 7 critical
-            vulnerability classes and explains every finding — exploit path,
-            root cause, and secure fix — in plain English.
+            SolShield AI scans Anchor and Rust programs for{" "}
+            <span style={{ color: "var(--secondary-text)", fontWeight: 800 }}>
+              7 critical vulnerability classes
+            </span>{" "}
+            and explains every finding — exploit path, root cause, and secure
+            fix — in plain English.
           </p>
+
+          {/* social proof pills */}
+          <div
+            className="hero-proof"
+            style={{
+              display: "flex",
+              gap: "12px",
+              justifyContent: "center",
+              flexWrap: "wrap",
+              marginBottom: "28px",
+            }}
+          >
+            <span className="pill-label" style={{ padding: "6px 14px", fontSize: "12.5px" }}>
+              <span style={{ display: "flex" }}>
+                {["var(--primary)", "var(--secondary)", "var(--accent)"].map((c, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      width: 18,
+                      height: 18,
+                      borderRadius: "50%",
+                      background: c,
+                      border: "2px solid var(--surface)",
+                      marginLeft: i === 0 ? 0 : -7,
+                    }}
+                  />
+                ))}
+              </span>
+              Built for Anchor devs
+            </span>
+            <span className="pill-label" style={{ padding: "6px 14px", fontSize: "12.5px" }}>
+              <Star size={13} style={{ color: "var(--accent)", fill: "var(--accent)" }} />
+              Free — no login required
+            </span>
+          </div>
 
           <div
             className="hero-ctas"
-            style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}
+            style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}
           >
-            <Link href="/dashboard" className="btn-primary" style={{ padding: "13px 30px", fontSize: "15px" }}>
-              <ShieldCheck size={17} />
+            <Link
+              href="/dashboard"
+              className="btn-primary"
+              style={{ padding: "15px 34px", fontSize: "16px", borderRadius: "16px" }}
+            >
+              <ShieldCheck size={18} />
               Start Free Audit
+              <ArrowRight size={17} />
             </Link>
-            <Link href="/chat" className="btn-ghost" style={{ padding: "13px 30px", fontSize: "15px" }}>
+            <Link
+              href="/chat"
+              className="btn-ghost"
+              style={{ padding: "15px 34px", fontSize: "16px", borderRadius: "16px" }}
+            >
               <MessageSquare size={17} />
               Ask AI Assistant
             </Link>
@@ -254,14 +352,17 @@ export default function LandingPage() {
 
         {/* Trace window mockup */}
         <div
-          className="hero-trace card"
+          className="hero-trace"
           style={{
-            marginTop: "56px",
+            marginTop: "60px",
             width: "100%",
             maxWidth: "720px",
             overflow: "hidden",
             textAlign: "left",
-            boxShadow: "0 24px 60px rgba(0,0,0,0.25)",
+            background: "var(--surface)",
+            border: "3px solid var(--border)",
+            borderRadius: "20px",
+            boxShadow: "8px 8px 0px 0px var(--shadow-color)",
           }}
         >
           {/* Title bar */}
@@ -270,26 +371,35 @@ export default function LandingPage() {
               display: "flex",
               alignItems: "center",
               gap: "10px",
-              padding: "12px 16px",
-              borderBottom: "1px solid var(--border)",
+              padding: "12px 18px",
+              borderBottom: "3px solid var(--border)",
               background: "var(--panel)",
             }}
           >
             <span style={{ display: "flex", gap: "6px" }}>
-              <span style={{ width: 11, height: 11, borderRadius: "50%", background: "var(--secondary)" }} />
-              <span style={{ width: 11, height: 11, borderRadius: "50%", background: "var(--primary)" }} />
-              <span style={{ width: 11, height: 11, borderRadius: "50%", background: "var(--sev-critical)" }} />
+              {["var(--primary)", "var(--secondary)", "var(--accent)"].map((c, i) => (
+                <span
+                  key={i}
+                  style={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: "50%",
+                    background: c,
+                    border: "2px solid var(--border)",
+                  }}
+                />
+              ))}
             </span>
-            <code className="font-mono" style={{ fontSize: "12px", color: "var(--muted)" }}>
+            <code className="font-mono" style={{ fontSize: "12px", fontWeight: 700, color: "var(--muted)" }}>
               trace://solshield/scan · lending_program.rs
             </code>
           </div>
 
-          <div style={{ padding: "18px" }}>
+          <div style={{ padding: "18px 20px" }}>
             <div className="section-label" style={{ marginBottom: "14px" }}>
               Static analysis · 7 rules
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {TRACE_ROWS.map((row) => {
                 const meta =
                   row.status === "fail"
@@ -308,7 +418,7 @@ export default function LandingPage() {
                       padding: "10px 14px",
                     }}
                   >
-                    <code className="font-mono" style={{ fontSize: "12px", color: "var(--primary)", width: "62px" }}>
+                    <code className="font-mono" style={{ fontSize: "12px", fontWeight: 800, color: "var(--primary-text)", width: "64px" }}>
                       {row.id}
                     </code>
                     <code className="font-mono" style={{ fontSize: "12px", color: "var(--foreground)", flex: 1 }}>
@@ -322,28 +432,76 @@ export default function LandingPage() {
               })}
             </div>
             {/* progress */}
-            <div style={{ marginTop: "16px", height: "2px", background: "var(--border)", borderRadius: "2px" }}>
-              <div style={{ width: "100%", height: "100%", background: "var(--secondary)", borderRadius: "2px" }} />
+            <div
+              style={{
+                marginTop: "18px",
+                height: "10px",
+                background: "var(--panel)",
+                border: "2px solid var(--border)",
+                borderRadius: "999px",
+                overflow: "hidden",
+              }}
+            >
+              <div style={{ width: "100%", height: "100%", background: "var(--primary)" }} />
             </div>
             <div
               className="font-mono"
-              style={{ marginTop: "10px", fontSize: "11px", color: "var(--muted)", display: "flex", justifyContent: "space-between" }}
+              style={{ marginTop: "10px", fontSize: "11px", fontWeight: 700, color: "var(--muted)", display: "flex", justifyContent: "space-between" }}
             >
               <span>scan complete</span>
               <span>time 1.84s · 3 findings</span>
             </div>
           </div>
         </div>
+
+        {/* Stat cards */}
+        <div
+          className="stats-grid"
+          style={{
+            marginTop: "56px",
+            width: "100%",
+            maxWidth: "880px",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+            gap: "16px",
+          }}
+        >
+          {STATS.map((stat) => (
+            <div
+              key={stat.label}
+              className="stat-item card"
+              style={{
+                padding: "20px 16px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "center",
+                gap: "8px",
+              }}
+            >
+              <div className={`icon-box ${stat.box}`} style={{ width: 44, height: 44 }}>
+                {stat.icon}
+              </div>
+              <div style={{ fontSize: "30px", fontWeight: 900, letterSpacing: "-0.04em" }}>
+                {stat.value}
+              </div>
+              <div style={{ fontSize: "12.5px", fontWeight: 700, color: "var(--muted)" }}>
+                {stat.label}
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
-      {/* ─────────── MARQUEE ─────────── */}
+      {/* ─────────── MARQUEE (inverted ticker) ─────────── */}
       <div
         style={{
-          padding: "16px 0",
-          borderTop: "1px solid var(--border)",
-          borderBottom: "1px solid var(--border)",
+          padding: "14px 0",
+          borderTop: "3px solid var(--border)",
+          borderBottom: "3px solid var(--border)",
           overflow: "hidden",
-          background: "var(--surface)",
+          background: INK,
+          color: PAPER,
         }}
       >
         <div className="marquee-track">
@@ -352,240 +510,367 @@ export default function LandingPage() {
               key={i}
               className="font-mono"
               style={{
-                fontSize: "11.5px",
-                fontWeight: 600,
-                color: i % 2 === 0 ? "var(--primary)" : "var(--muted)",
-                letterSpacing: "0.04em",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "14px",
+                fontSize: "12px",
+                fontWeight: 800,
+                letterSpacing: "0.06em",
                 textTransform: "uppercase",
                 whiteSpace: "nowrap",
                 flexShrink: 0,
               }}
             >
-              {rule}
+              <span style={{ color: ["var(--primary)", "var(--secondary)", "var(--accent)"][i % 3] }}>
+                ✦
+              </span>
+              {rule.id} · {rule.name}
             </span>
           ))}
         </div>
       </div>
 
-      {/* ─────────── BENTO ─────────── */}
-      <section id="features" style={{ padding: "clamp(72px, 10vw, 130px) clamp(20px, 4vw, 52px)" }}>
-        <div style={{ maxWidth: "1240px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "48px" }}>
-            <div className="section-label" style={{ marginBottom: "12px" }}>
-              The Platform
+      {/* ─────────── HOW IT WORKS (dark / inverted) ─────────── */}
+      <section
+        id="how"
+        style={{
+          background: INK,
+          color: PAPER,
+          padding: "clamp(64px, 9vw, 120px) clamp(20px, 4vw, 52px)",
+        }}
+      >
+        <div style={{ maxWidth: "1080px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "52px" }}>
+            <div
+              className="pill-label"
+              style={{
+                background: inkTint(10),
+                borderColor: inkTint(22),
+                color: PAPER,
+                boxShadow: "none",
+                marginBottom: "20px",
+              }}
+            >
+              <span style={{ color: "var(--secondary)" }}>✦</span>
+              Stupidly Simple
             </div>
-            <h2 style={{ fontSize: "clamp(1.9rem, 3.6vw, 3.2rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.08, marginBottom: "12px" }}>
-              Everything in one workspace
+            <h2
+              style={{
+                fontSize: "clamp(2rem, 4.4vw, 3.2rem)",
+                fontWeight: 900,
+                letterSpacing: "-0.04em",
+                lineHeight: 1.08,
+                marginBottom: "14px",
+              }}
+            >
+              ZIP in. Audit out.
             </h2>
-            <p style={{ color: "var(--muted)", fontSize: "15px", maxWidth: "460px", margin: "0 auto" }}>
-              From static analysis to AI-generated remediation — all in under two seconds.
+            <p style={{ color: inkTint(65), fontSize: "16px", fontWeight: 500, maxWidth: "520px", margin: "0 auto" }}>
+              Three steps from raw Rust to an explained, fix-ready security
+              report.
             </p>
           </div>
 
           <div
-            ref={bentoRef}
+            className="steps-grid"
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(6, 1fr)",
-              gridAutoFlow: "dense",
-              gap: "14px",
+              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gap: "20px",
             }}
           >
-            {/* Card A */}
-            <div className="bento-item card lift" style={{ gridColumn: "span 4", gridRow: "span 2", padding: "34px 36px", minHeight: "360px" }}>
-              <div className="badge" style={{ background: "var(--primary-soft)", borderColor: "color-mix(in srgb, var(--primary) 30%, transparent)", color: "var(--primary)", marginBottom: "24px" }}>
-                <Code2 size={11} />
-                Static Analysis Engine
-              </div>
-              <h3 style={{ fontSize: "clamp(1.5rem, 2.6vw, 2.4rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginBottom: "16px" }}>
-                Regex AST analysis across every Rust file
-              </h3>
-              <p style={{ color: "var(--muted)", fontSize: "14.5px", lineHeight: 1.65, maxWidth: "440px" }}>
-                7 security rules check every function signature, CPI call, PDA
-                seed derivation, and arithmetic operation across your entire
-                Anchor program in parallel.
-              </p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "26px" }}>
-                {["Signer", "Ownership", "CPI", "PDA", "Overflow", "Authority", "unwrap()"].map((tag) => (
-                  <span key={tag} className="badge">{tag}</span>
-                ))}
-              </div>
-            </div>
-
-            {/* Card B */}
-            <div className="bento-item card lift" style={{ gridColumn: "span 2", gridRow: "span 1", padding: "28px 30px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-              <div className="panel" style={{ width: 42, height: 42, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--secondary)" }}>
-                <Zap size={20} />
-              </div>
-              <div>
-                <h3 style={{ fontSize: "1.15rem", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "8px", marginTop: "20px" }}>
-                  Gemini AI Explanations
-                </h3>
-                <p style={{ color: "var(--muted)", fontSize: "13px", lineHeight: 1.6 }}>
-                  Every finding gets an on-demand exploit scenario, root cause
-                  analysis, and secure Rust fix — powered by Gemini 2.5 Flash.
-                </p>
-              </div>
-            </div>
-
-            {/* Card C */}
-            <div className="bento-item card lift" style={{ gridColumn: "span 2", gridRow: "span 1", padding: "28px 30px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-              <div className="panel" style={{ width: 42, height: 42, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
-                <Eye size={20} />
-              </div>
-              <div>
-                <h3 style={{ fontSize: "1.15rem", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "8px", marginTop: "20px" }}>
-                  Monaco Code Viewer
-                </h3>
-                <p style={{ color: "var(--muted)", fontSize: "13px", lineHeight: 1.6 }}>
-                  Interactive editor highlights vulnerable lines with inline
-                  severity markers and jump-to-line navigation.
-                </p>
-              </div>
-            </div>
-
-            {/* Card D */}
-            <div className="bento-item card lift" style={{ gridColumn: "span 6", gridRow: "span 1", padding: "32px 36px", display: "flex", alignItems: "center", gap: "40px", flexWrap: "wrap" }}>
-              <div style={{ flex: 1, minWidth: "260px" }}>
-                <div className="badge" style={{ background: "color-mix(in srgb, var(--sev-low) 12%, transparent)", borderColor: "color-mix(in srgb, var(--sev-low) 30%, transparent)", color: "var(--sev-low)", marginBottom: "14px" }}>
-                  <GitBranch size={11} />
-                  GitHub Repository Scanner
+            {STEPS.map((step) => (
+              <div
+                key={step.n}
+                className="step-card"
+                style={{
+                  background: inkTint(6),
+                  border: `3px solid ${inkTint(14)}`,
+                  borderRadius: "20px",
+                  padding: "26px 26px 24px",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "56px",
+                    fontWeight: 900,
+                    lineHeight: 1,
+                    color: inkTint(12),
+                    alignSelf: "flex-end",
+                    marginBottom: "6px",
+                  }}
+                >
+                  {step.n}
+                </span>
+                <div
+                  className={`icon-box ${step.box}`}
+                  style={{ boxShadow: `4px 4px 0px 0px ${inkTint(10)}`, marginBottom: "18px" }}
+                >
+                  {step.icon}
                 </div>
-                <h3 style={{ fontSize: "clamp(1.2rem, 2vw, 1.7rem)", fontWeight: 800, letterSpacing: "-0.035em", marginBottom: "10px", lineHeight: 1.15 }}>
-                  Paste a GitHub URL. Get a full security report.
+                <h3 style={{ fontSize: "19px", fontWeight: 900, letterSpacing: "-0.02em", marginBottom: "8px" }}>
+                  {step.title}
                 </h3>
-                <p style={{ color: "var(--muted)", fontSize: "14px", lineHeight: 1.65, maxWidth: "520px" }}>
-                  SolShield clones the repo, finds every{" "}
-                  <code className="font-mono" style={{ fontSize: "12px", color: "var(--primary)", background: "var(--primary-soft)", padding: "1px 6px", borderRadius: "4px" }}>
-                    .rs
-                  </code>{" "}
-                  file, runs the full detection suite, and returns findings — no
-                  authentication required.
+                <p style={{ color: inkTint(65), fontSize: "14px", lineHeight: 1.65, flex: 1 }}>
+                  {step.desc}
                 </p>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "7px",
+                    alignSelf: "flex-start",
+                    marginTop: "18px",
+                    padding: "5px 13px",
+                    borderRadius: "999px",
+                    border: "2px solid var(--border)",
+                    background: "var(--primary)",
+                    color: "var(--primary-fg)",
+                    fontSize: "12px",
+                    fontWeight: 800,
+                  }}
+                >
+                  <Clock size={12} /> {step.time}
+                </span>
               </div>
-              <div className="panel" style={{ flex: "0 0 auto", padding: "18px 22px", display: "flex", flexDirection: "column", gap: "10px", minWidth: "200px" }}>
-                {["clone repository", "discover .rs files", "run 7 rules", "compile report"].map((step, i) => (
-                  <div key={step} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <CheckCircle2 size={14} style={{ color: "var(--sev-low)" }} />
-                    <code className="font-mono" style={{ fontSize: "12px", color: i === 3 ? "var(--foreground)" : "var(--muted)" }}>
-                      {step}
-                    </code>
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
+          </div>
+
+          <div style={{ textAlign: "center", marginTop: "44px" }}>
+            <Link
+              href="/dashboard"
+              className="btn-primary"
+              style={{
+                padding: "14px 32px",
+                fontSize: "15px",
+                borderRadius: "16px",
+                boxShadow: `5px 5px 0px 0px ${inkTint(12)}`,
+              }}
+            >
+              <Zap size={16} />
+              Start Building Securely
+              <ArrowRight size={16} />
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* ─────────── SCRUB REVEAL ─────────── */}
+      {/* ─────────── FEATURES ─────────── */}
       <section
-        id="how"
-        ref={scrubRef}
-        style={{
-          padding: "clamp(72px, 10vw, 130px) clamp(20px, 4vw, 52px)",
-          maxWidth: "1240px",
-          margin: "0 auto",
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "clamp(40px, 7vw, 90px)",
-          alignItems: "start",
-        }}
-        className="scrub-grid"
+        id="features"
+        style={{ padding: "clamp(64px, 9vw, 120px) clamp(20px, 4vw, 52px)" }}
       >
-        <div style={{ position: "sticky", top: "32vh", alignSelf: "start" }}>
-          <div className="section-label" style={{ marginBottom: "14px" }}>
-            The Process
+        <div style={{ maxWidth: "1080px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "52px" }}>
+            <div className="pill-label" style={{ marginBottom: "20px" }}>
+              <Star size={14} style={{ color: "var(--secondary)", fill: "var(--secondary)" }} />
+              Why SolShield
+            </div>
+            <h2
+              style={{
+                fontSize: "clamp(2rem, 4.4vw, 3.2rem)",
+                fontWeight: 900,
+                letterSpacing: "-0.04em",
+                lineHeight: 1.08,
+                marginBottom: "14px",
+              }}
+            >
+              Everything in one workspace
+            </h2>
+            <p style={{ color: "var(--muted)", fontSize: "16px", fontWeight: 500, maxWidth: "520px", margin: "0 auto" }}>
+              From static analysis to AI-generated remediation — all in under
+              two seconds.
+            </p>
           </div>
-          <h2 style={{ fontSize: "clamp(2rem, 3.2vw, 3rem)", fontWeight: 800, letterSpacing: "-0.045em", lineHeight: 1.1, marginBottom: "20px" }}>
-            Why developers trust SolShield
-          </h2>
-          <p style={{ color: "var(--muted)", lineHeight: 1.7, fontSize: "14.5px", maxWidth: "340px" }}>
-            Built for hackathon velocity and mainnet-grade security assurance.
-          </p>
-          <Link href="/dashboard" style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginTop: "28px", fontSize: "13px", fontWeight: 700, color: "var(--primary)", textDecoration: "none" }}>
-            Start auditing <ArrowUpRight size={14} />
-          </Link>
-        </div>
 
-        <div>
-          <p style={{ fontSize: "clamp(1.3rem, 2.1vw, 1.8rem)", fontWeight: 700, lineHeight: 1.5, letterSpacing: "-0.025em" }}>
-            {SCRUB_SENTENCE.split(" ").map((word, i) => (
-              <span key={i} className="scrub-word" style={{ opacity: 0.12 }}>
-                {word}{" "}
-              </span>
-            ))}
-          </p>
-
-          <div className="scrub-feature-list" style={{ marginTop: "44px", display: "flex", flexDirection: "column", gap: "12px" }}>
-            {[
-              { icon: <Lock size={15} />, title: "Upload ZIP or paste a GitHub URL", desc: "No account required for quick audits. Authenticated users get scan history." },
-              { icon: <Code2 size={15} />, title: "Parallel regex-based analysis", desc: "All 7 rules run simultaneously across every .rs file — scan completes in under 2 seconds." },
-              { icon: <Zap size={15} />, title: "On-demand AI enrichment", desc: "Click any finding to fetch a Gemini explanation, exploit scenario, and fix." },
-            ].map((item, i) => (
-              <div key={i} className="scrub-feature card" style={{ display: "flex", gap: "15px", alignItems: "flex-start", padding: "18px 20px" }}>
-                <div className="panel" style={{ width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)", flexShrink: 0 }}>
-                  {item.icon}
+          <div
+            className="features-grid"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "20px",
+            }}
+          >
+            {FEATURES.map((f) => (
+              <div key={f.title} className="feature-card card" style={{ padding: "26px" }}>
+                <div className={`icon-box ${f.box}`} style={{ marginBottom: "18px" }}>
+                  {f.icon}
                 </div>
-                <div>
-                  <h4 style={{ fontWeight: 700, fontSize: "14px", letterSpacing: "-0.02em", marginBottom: "5px" }}>
-                    {item.title}
-                  </h4>
-                  <p style={{ color: "var(--muted)", fontSize: "13px", lineHeight: 1.6 }}>{item.desc}</p>
-                </div>
+                <h3 style={{ fontSize: "19px", fontWeight: 900, letterSpacing: "-0.02em", marginBottom: "8px" }}>
+                  {f.title}
+                </h3>
+                <p style={{ color: "var(--muted)", fontSize: "14px", lineHeight: 1.65 }}>
+                  {f.desc}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─────────── STATS ─────────── */}
+      {/* ─────────── RULES TABLE ─────────── */}
       <section
-        ref={statsRef}
+        id="rules"
         style={{
-          padding: "clamp(52px, 8vw, 96px) clamp(20px, 4vw, 52px)",
-          borderTop: "1px solid var(--border)",
-          borderBottom: "1px solid var(--border)",
-          background: "var(--surface)",
+          padding: "clamp(64px, 9vw, 120px) clamp(20px, 4vw, 52px)",
+          background: `linear-gradient(135deg, var(--paper-wash), var(--paper-wash-2))`,
+          borderTop: "3px solid var(--border)",
+          borderBottom: "3px solid var(--border)",
         }}
       >
-        <div style={{ maxWidth: "1100px", margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
-          {[
-            { value: "7", label: "Vulnerability Rules", note: "SOL-001 → SOL-007" },
-            { value: "< 2s", label: "Average Scan Speed", note: "full Anchor projects" },
-            { value: "AI", label: "Powered Analysis", note: "Gemini 2.5 Flash" },
-          ].map((stat) => (
-            <div key={stat.label} className="stat-block">
-              <div className="stat-value">{stat.value}</div>
-              <div className="stat-label">{stat.label}</div>
-              <div className="font-mono" style={{ fontSize: "11px", color: "var(--muted)", marginTop: "8px" }}>
-                {stat.note}
-              </div>
+        <div style={{ maxWidth: "980px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "52px" }}>
+            <div className="pill-label" style={{ marginBottom: "20px" }}>
+              <ShieldCheck size={14} style={{ color: "var(--primary-text)" }} />
+              The Detection Suite
             </div>
-          ))}
+            <h2
+              style={{
+                fontSize: "clamp(2rem, 4.4vw, 3.2rem)",
+                fontWeight: 900,
+                letterSpacing: "-0.04em",
+                lineHeight: 1.08,
+                marginBottom: "14px",
+              }}
+            >
+              7 rules. Zero excuses.
+            </h2>
+            <p style={{ color: "var(--muted)", fontSize: "16px", fontWeight: 500, maxWidth: "560px", margin: "0 auto" }}>
+              The vulnerability classes behind the biggest Solana exploits —
+              checked on every scan.
+            </p>
+          </div>
+
+          <div
+            className="rules-table-wrap"
+            style={{
+              background: "var(--surface)",
+              border: "3px solid var(--border)",
+              borderRadius: "20px",
+              boxShadow: "8px 8px 0px 0px var(--shadow-color)",
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "640px" }}>
+                <thead>
+                  <tr style={{ background: "var(--panel)", borderBottom: "3px solid var(--border)" }}>
+                    {["Rule", "Vulnerability", "What it catches", "Severity"].map((h) => (
+                      <th
+                        key={h}
+                        style={{
+                          textAlign: "left",
+                          padding: "14px 18px",
+                          fontSize: "11px",
+                          fontWeight: 800,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.1em",
+                          color: "var(--muted)",
+                        }}
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {VULN_RULES.map((rule, i) => (
+                    <tr
+                      key={rule.id}
+                      style={{
+                        borderBottom:
+                          i === VULN_RULES.length - 1
+                            ? "none"
+                            : "2px solid color-mix(in srgb, var(--border) 18%, transparent)",
+                      }}
+                    >
+                      <td style={{ padding: "14px 18px" }}>
+                        <code className="font-mono" style={{ fontSize: "12.5px", fontWeight: 800, color: "var(--primary-text)" }}>
+                          {rule.id}
+                        </code>
+                      </td>
+                      <td style={{ padding: "14px 18px", fontSize: "14px", fontWeight: 800, whiteSpace: "nowrap" }}>
+                        {rule.name}
+                      </td>
+                      <td style={{ padding: "14px 18px", fontSize: "13px", color: "var(--muted)", lineHeight: 1.5 }}>
+                        {rule.catches}
+                      </td>
+                      <td style={{ padding: "14px 18px" }}>
+                        <span className={`badge badge-${rule.severity}`} style={{ fontSize: "10.5px" }}>
+                          {rule.severity}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* ─────────── CTA ─────────── */}
-      <section style={{ padding: "clamp(80px, 13vw, 150px) clamp(20px, 4vw, 52px)", textAlign: "center" }}>
-        <div className="cta-content" style={{ maxWidth: "760px", margin: "0 auto" }}>
-          <span style={{ display: "inline-flex" }}>
-            <LogoMark size={48} />
+      <section style={{ padding: "clamp(72px, 11vw, 140px) clamp(20px, 4vw, 52px)", textAlign: "center" }}>
+        <div className="cta-content" style={{ maxWidth: "740px", margin: "0 auto" }}>
+          <span
+            className="icon-box"
+            style={{
+              width: 72,
+              height: 72,
+              borderRadius: "18px",
+              background: "var(--surface)",
+              boxShadow: "5px 5px 0px 0px var(--shadow-color)",
+              display: "inline-flex",
+            }}
+          >
+            <LogoMark size={44} />
           </span>
-          <h2 style={{ fontSize: "clamp(2.4rem, 5.2vw, 4.6rem)", fontWeight: 800, letterSpacing: "-0.045em", lineHeight: 1.05, margin: "24px 0" }}>
+          <h2
+            style={{
+              fontSize: "clamp(2.3rem, 5.4vw, 4.4rem)",
+              fontWeight: 900,
+              letterSpacing: "-0.045em",
+              lineHeight: 1.05,
+              margin: "26px 0 18px",
+            }}
+          >
             Deploy with{" "}
-            <span style={{ color: "var(--primary)" }}>full confidence</span>
+            <span style={{ color: "var(--secondary-text)", borderBottom: "5px solid var(--secondary)" }}>
+              full confidence
+            </span>
           </h2>
-          <p style={{ color: "var(--muted)", fontSize: "clamp(15px, 1.6vw, 18px)", marginBottom: "40px", lineHeight: 1.7, maxWidth: "540px", marginInline: "auto" }}>
+          <p
+            style={{
+              color: "var(--muted)",
+              fontSize: "clamp(15px, 1.7vw, 18px)",
+              fontWeight: 500,
+              marginBottom: "36px",
+              lineHeight: 1.7,
+              maxWidth: "540px",
+              marginInline: "auto",
+            }}
+          >
             Upload your Anchor project ZIP or paste a GitHub URL. Get a complete
-            AI security report in seconds. No login required.
+            AI security report in seconds —{" "}
+            <span style={{ color: "var(--secondary-text)", fontWeight: 800 }}>no login required</span>.
           </p>
-          <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/dashboard" className="btn-primary" style={{ padding: "15px 40px", fontSize: "16px" }}>
+          <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}>
+            <Link
+              href="/dashboard"
+              className="btn-primary"
+              style={{ padding: "16px 40px", fontSize: "16px", borderRadius: "16px" }}
+            >
               <Zap size={18} />
               Start Scanning Free
+              <ArrowRight size={17} />
             </Link>
-            <Link href="/chat" className="btn-ghost" style={{ padding: "15px 40px", fontSize: "16px" }}>
+            <Link
+              href="/chat"
+              className="btn-ghost"
+              style={{ padding: "16px 40px", fontSize: "16px", borderRadius: "16px" }}
+            >
               <MessageSquare size={18} />
               Open AI Chat
             </Link>
@@ -593,34 +878,51 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─────────── FOOTER ─────────── */}
+      {/* ─────────── FOOTER (inverted) ─────────── */}
       <footer
         style={{
-          borderTop: "1px solid var(--border)",
-          padding: "28px clamp(20px, 4vw, 52px)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: "14px",
-          maxWidth: "1240px",
-          margin: "0 auto",
+          background: INK,
+          color: PAPER,
+          borderTop: "3px solid var(--border)",
+          padding: "36px clamp(20px, 4vw, 52px)",
         }}
       >
-        <Logo size={22} fontSize={14} />
-        <p style={{ fontSize: "12px", color: "var(--muted)" }}>
-          AI-Powered Solana Smart Contract Security Auditing
-        </p>
-        <div style={{ display: "flex", gap: "20px", fontSize: "12px", color: "var(--muted)" }}>
-          {[
-            { label: "Dashboard", href: "/dashboard" },
-            { label: "AI Chat", href: "/chat" },
-            { label: "Brand Kit", href: "/brandkit" },
-          ].map(({ label, href }) => (
-            <Link key={label} href={href} className="nav-link" style={{ color: "inherit", textDecoration: "none" }}>
-              {label}
-            </Link>
-          ))}
+        <div
+          style={{
+            maxWidth: "1080px",
+            margin: "0 auto",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "18px",
+          }}
+        >
+          <span style={{ display: "inline-flex", alignItems: "center", gap: "9px" }}>
+            <LogoMark size={24} />
+            <span style={{ fontSize: "15px", fontWeight: 900, letterSpacing: "-0.03em" }}>
+              SolShield <span style={{ color: "var(--primary)" }}>AI</span>
+            </span>
+          </span>
+          <p style={{ fontSize: "12.5px", fontWeight: 600, color: inkTint(60) }}>
+            AI-Powered Solana Smart Contract Security Auditing
+          </p>
+          <div style={{ display: "flex", gap: "22px", fontSize: "12.5px", fontWeight: 700, color: inkTint(60) }}>
+            {[
+              { label: "Dashboard", href: "/dashboard" },
+              { label: "AI Chat", href: "/chat" },
+              { label: "History", href: "/history" },
+            ].map(({ label, href }) => (
+              <Link
+                key={label}
+                href={href}
+                style={{ color: "inherit", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "3px" }}
+              >
+                {label}
+                <ArrowUpRight size={12} />
+              </Link>
+            ))}
+          </div>
         </div>
       </footer>
     </main>

@@ -119,7 +119,7 @@ export default function CodeEditor({
       style={{
         borderRadius: "8px",
         overflow: "hidden",
-        border: "1px solid var(--border)",
+        border: "2px solid var(--border)",
       }}
     >
       <style>{`

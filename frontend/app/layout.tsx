@@ -2,14 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider, THEME_INIT_SCRIPT } from "@/context/ThemeContext";
-import { DM_Sans } from "next/font/google";
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  variable: "--font-heading",
-  display: "swap",
-  weight: ["400", "500", "600", "700", "800"],
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://solshield.mritunjay.live"),
@@ -56,7 +48,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${dmSans.variable} theme-graphite-lab h-full`}
+      className="theme-mint-pop h-full"
       suppressHydrationWarning
     >
       <body className="min-h-full">

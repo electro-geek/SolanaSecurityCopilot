@@ -207,10 +207,10 @@ export default function DashboardPage() {
                         style={{
                           padding: "5px 10px",
                           background: "var(--primary-soft)",
-                          border: "1px solid color-mix(in srgb, var(--primary) 30%, transparent)",
+                          border: "2px solid color-mix(in srgb, var(--primary) 30%, transparent)",
                           borderRadius: "6px",
                           fontSize: "11px",
-                          color: "var(--primary)",
+                          color: "var(--primary-text)",
                           cursor: "pointer",
                         }}
                       >
@@ -236,7 +236,7 @@ export default function DashboardPage() {
                 padding: "14px 18px",
                 borderRadius: "8px",
                 background: "color-mix(in srgb, var(--sev-critical) 10%, transparent)",
-                border: "1px solid color-mix(in srgb, var(--sev-critical) 30%, transparent)",
+                border: "2px solid color-mix(in srgb, var(--sev-critical) 30%, transparent)",
                 color: "var(--sev-critical)",
                 fontSize: "13px",
                 marginBottom: "20px",
@@ -271,7 +271,7 @@ export default function DashboardPage() {
                 }}
               >
                 <div className="spinner" />
-                <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--primary)" }}>
+                <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--primary-text)" }}>
                   Scanning for vulnerabilities...
                 </span>
               </div>
@@ -340,7 +340,7 @@ export default function DashboardPage() {
                 color: "var(--muted)",
               }}
             >
-              <span style={{ color: "var(--primary)" }}>{hint.icon}</span>
+              <span style={{ color: "var(--primary-text)" }}>{hint.icon}</span>
               {hint.label}
             </div>
           ))}

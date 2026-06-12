@@ -147,7 +147,7 @@ export default function FindingDetail({ finding, onEnrich }: Props) {
               padding: "32px 16px",
               borderRadius: "8px",
               background: "var(--primary-soft)",
-              border: "1px dashed var(--primary)",
+              border: "2px dashed var(--primary)",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -160,7 +160,7 @@ export default function FindingDetail({ finding, onEnrich }: Props) {
                 style={{
                   fontSize: "14px",
                   fontWeight: 800,
-                  color: "var(--primary)",
+                  color: "var(--primary-text)",
                   marginBottom: "4px",
                 }}
               >
@@ -212,7 +212,7 @@ export default function FindingDetail({ finding, onEnrich }: Props) {
                 alignItems: "center",
                 gap: "8px",
                 marginBottom: "12px",
-                color: "var(--primary)",
+                color: "var(--primary-text)",
               }}
             >
               <Lightbulb size={14} />
@@ -229,7 +229,7 @@ export default function FindingDetail({ finding, onEnrich }: Props) {
           <div
             style={{
               borderRadius: "8px",
-              border: "1px solid color-mix(in srgb, var(--sev-critical) 30%, transparent)",
+              border: "2px solid color-mix(in srgb, var(--sev-critical) 30%, transparent)",
               marginBottom: "12px",
               overflow: "hidden",
             }}
@@ -280,7 +280,7 @@ export default function FindingDetail({ finding, onEnrich }: Props) {
           <div
             style={{
               borderRadius: "8px",
-              border: "1px solid color-mix(in srgb, var(--sev-low) 30%, transparent)",
+              border: "2px solid color-mix(in srgb, var(--sev-low) 30%, transparent)",
               overflow: "hidden",
             }}
           >

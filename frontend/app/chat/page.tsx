@@ -184,7 +184,7 @@ export default function ChatPage() {
                   style={{
                     padding: "9px 11px",
                     background: "var(--panel)",
-                    border: "1px solid var(--border)",
+                    border: "2px solid var(--border)",
                     borderRadius: "8px",
                     color: "var(--muted)",
                     fontSize: "12px",
@@ -224,7 +224,7 @@ export default function ChatPage() {
                 marginBottom: showContext ? "10px" : 0,
               }}
             >
-              <Code2 size={13} style={{ color: "var(--primary)" }} />
+              <Code2 size={13} style={{ color: "var(--primary-text)" }} />
               Add Code Context
             </button>
             {showContext && (
@@ -237,7 +237,7 @@ export default function ChatPage() {
                   width: "100%",
                   height: "120px",
                   background: "var(--panel)",
-                  border: "1px solid var(--border)",
+                  border: "2px solid var(--border)",
                   borderRadius: "8px",
                   color: "var(--foreground)",
                   fontSize: "11px",
@@ -255,7 +255,7 @@ export default function ChatPage() {
           <div
             style={{
               padding: "16px 20px",
-              borderBottom: "1px solid var(--border)",
+              borderBottom: "2px solid var(--border)",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
@@ -299,7 +299,7 @@ export default function ChatPage() {
                     height: 32,
                     borderRadius: "8px",
                     background: msg.role === "user" ? "var(--primary-soft)" : "var(--panel)",
-                    border: "1px solid var(--border)",
+                    border: "2px solid var(--border)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -307,7 +307,7 @@ export default function ChatPage() {
                   }}
                 >
                   {msg.role === "user" ? (
-                    <User size={16} style={{ color: "var(--primary)" }} />
+                    <User size={16} style={{ color: "var(--primary-text)" }} />
                   ) : (
                     <LogoMark size={18} />
                   )}
@@ -319,7 +319,7 @@ export default function ChatPage() {
                     padding: "14px 18px",
                     borderRadius: msg.role === "user" ? "12px 4px 12px 12px" : "4px 12px 12px 12px",
                     background: msg.role === "user" ? "var(--primary-soft)" : "var(--panel)",
-                    border: "1px solid var(--border)",
+                    border: "2px solid var(--border)",
                   }}
                 >
                   {msg.role === "assistant" ? (
@@ -337,7 +337,7 @@ export default function ChatPage() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div style={{ padding: "16px 20px", borderTop: "1px solid var(--border)", flexShrink: 0 }}>
+          <div style={{ padding: "16px 20px", borderTop: "2px solid var(--border)", flexShrink: 0 }}>
             <div
               style={{
                 display: "flex",
@@ -345,7 +345,7 @@ export default function ChatPage() {
                 alignItems: "flex-end",
                 padding: "10px 14px",
                 background: "var(--panel)",
-                border: "1px solid var(--border)",
+                border: "2px solid var(--border)",
                 borderRadius: "8px",
               }}
             >
@@ -381,7 +381,7 @@ export default function ChatPage() {
                   height: 36,
                   borderRadius: "8px",
                   background: isStreaming || !input.trim() ? "var(--panel)" : "var(--primary)",
-                  border: "1px solid var(--border)",
+                  border: "2px solid var(--border)",
                   cursor: isStreaming || !input.trim() ? "not-allowed" : "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -391,7 +391,7 @@ export default function ChatPage() {
                 }}
               >
                 {isStreaming ? (
-                  <Loader2 size={16} style={{ color: "var(--primary)", animation: "spin 0.8s linear infinite" }} />
+                  <Loader2 size={16} style={{ color: "var(--primary-text)", animation: "spin 0.8s linear infinite" }} />
                 ) : (
                   <Send size={16} color={input.trim() ? "var(--primary-fg)" : "var(--muted)"} />
                 )}

@@ -108,7 +108,7 @@ export default function HistoryPage() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "var(--primary)",
+                color: "var(--primary-text)",
               }}
             >
               <History size={22} />
